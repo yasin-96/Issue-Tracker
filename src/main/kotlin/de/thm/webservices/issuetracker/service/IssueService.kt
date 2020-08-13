@@ -3,7 +3,10 @@ package de.thm.webservices.issuetracker.service
 import de.thm.webservices.issuetracker.exception.*
 import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.repository.IssueRepository
+import de.thm.webservices.issuetracker.security.AuthenticatedUser
+import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
 
@@ -33,9 +36,20 @@ class IssueService(private val issueRepository: IssueRepository) {
      * @return if it works then returns the id, else null
      */
     fun addNewIssue(newIssueModel: IssueModel): Mono<UUID?> {
-        return issueRepository.save(newIssueModel)
-                .switchIfEmpty(Mono.error(NoContentException("Could not create new issue")))
-                .map{ it.id!! }
+        return ReactiveSecurityContextHolder.getContext()
+                .map { securityContext ->
+                    securityContext.authentication
+                }
+                .cast(AuthenticatedUser::class.java)
+                .filter { authenticatedUser ->
+                    authenticatedUser.name == newIssueModel.owner.toString()
+                }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .flatMap { authenticatedUser ->
+                    issueRepository.save(newIssueModel)
+                            .switchIfEmpty(Mono.error(NoContentException("Could not create new issue")))
+                            .map{ it.id!! }
+                }
     }
 
     /**
@@ -102,5 +116,9 @@ class IssueService(private val issueRepository: IssueRepository) {
                             .switchIfEmpty(Mono.error(NotModifiedException("Could not update prop from Issue ")))
                 }
 
+    }
+
+    fun getByOwner(ownerId: String): Flux<IssueModel> {
+        return issueRepository.findByOwner(ownerId)
     }
 }
