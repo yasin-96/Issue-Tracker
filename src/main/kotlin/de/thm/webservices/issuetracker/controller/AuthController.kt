@@ -10,6 +10,14 @@ import reactor.core.publisher.Mono
 class AuthController(
         private val authenticationService: AuthenticationService
 ) {
+
+    /**
+     * TODO
+     *
+     * @param username
+     * @param password
+     * @return
+     */
     @GetMapping("/auth/login")
     fun login(
             @RequestParam username: String,

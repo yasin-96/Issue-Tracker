@@ -9,13 +9,16 @@ import reactor.core.publisher.Mono
 import java.util.UUID
 
 @RestController("UserController")
-class UserController(
-        private val userService: UserService
-) {
+class UserController(private val userService: UserService) {
+
+    /**
+     * TODO
+     *
+     * @param id
+     * @return
+     */
     @GetMapping("/user/{id}")
-    fun get(
-            @PathVariable id: UUID
-    ): Mono<User> {
+    fun get(@PathVariable id: UUID): Mono<User> {
         return userService.get(id)
     }
 }
