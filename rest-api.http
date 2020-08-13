@@ -1,0 +1,269 @@
+## Create new Issue
+POST http://localhost:8080/api/issue
+Accept: */*
+Content-Type: application/json
+
+{
+  "id": "220e8400-d29b-11d4-a716-446655440000",
+  "title": "test",
+  "owner": "test owner"
+}
+
+<> 2020-08-09T015721.200.txt
+<> 2020-08-09T013242.200.txt
+
+### Create another new Issue
+POST http://localhost:8080/api/issue
+Accept: */*
+Content-Type: application/json
+
+{
+  "id": "550e8400-e29b-11d4-a716-446655440000",
+  "title": "Test 2",
+  "owner": "Test owner2"
+}
+
+
+### Create another new Issue
+POST http://localhost:8080/api/issue
+Accept: */*
+Content-Type: application/json
+
+{
+  "title": "Test 3",
+  "owner": "Test Owner 3 "
+}
+
+### Create another new Issue
+POST http://localhost:8080/api/issue
+Accept: */*
+Content-Type: application/json
+
+{
+  "title": "Test 4",
+  "owner": "Test Owner 4 "
+}
+
+
+### Test if Title are empty
+POST http://localhost:8080/api/issue
+Accept: */*
+Content-Type: application/json
+
+{
+  "id": "88888888-4444-11d4-a716-446655440000",
+  "title": "",
+  "owner": "Test ohne Title"
+}
+
+### Test if Owner are empty
+POST http://localhost:8080/api/issue
+Accept: */*
+Content-Type: application/json
+
+{
+  "id": "88888888-5555-11d4-a716-446655440000",
+  "title": "Test without Owner",
+  "owner": ""
+}
+
+### Test if ID are empty
+POST http://localhost:8080/api/issue
+Accept: */*
+Content-Type: application/json
+
+{
+  "id": "",
+  "title": "Test without Owner",
+  "owner": "Test with Owner"
+}
+
+### Test if all values are empty
+POST http://localhost:8080/api/issue
+Accept: */*
+Content-Type: application/json
+
+{
+  "id": "",
+  "title": "",
+  "owner": ""
+}
+
+### Get Issue with ID 550e8400-e29b-11d4-a716-446655440000
+GET http://localhost:8080/api/issue/12f882b7-d00e-4a1a-9a6a-e2d3b1d4d36d
+Accept: */*
+
+### Get Issue with ID 69e86b5d-e0fd-4175-a9a6-641da675e048
+GET http://localhost:8080/api/issue/933bf597-8487-43b3-8e79-52d3292ca244
+Accept: */*
+
+<> 2020-08-09T020907.200.json
+
+### Get Issue with ID a00df531-f3c1-41ca-a6bd-76ae212a9f11
+GET http://localhost:8080/api/issue/5ac010ee-ea74-4898-a10d-75170d67576c
+Accept: */*
+
+### Try to get Issue with wrong UUID
+GET http://localhost:8080/api/issue/7eb3c61b-f15a-4747-9a6d-210009bf8092
+Accept: */*
+
+### Change values of one Issue
+PUT http://localhost:8080/api/issue
+Accept: */*
+Content-Type: application/json
+
+{
+  "id": "933bf597-8487-43b3-8e79-52d3292ca244",
+  "title": "sdfsdf",
+  "owner": "asd"
+}
+
+### Change values of the second Issue
+PUT http://localhost:8080/api/issue/93ee6d14-5563-4dcf-9e7b-35034aadb5d9
+Accept: */*
+Content-Type: application/json
+
+{
+  "title": "asdasdasdasda",
+  "owner": "sdjfklsjfölsjfkjskfjöljfjsjdfs"
+}
+
+<> 2020-08-09T020900.200.json
+
+### Try to add changes without Id
+PUT http://localhost:8080/api/issue
+Accept: */*
+Content-Type: application/json
+
+{
+  "id": "2958f2f5-1aeb-44a9-ad54-578b1eba73c4",
+  "title": " ",
+  "owner": "AJ"
+}
+
+### Try to add changes without Title
+PUT http://localhost:8080/api/issue
+Accept: */*
+Content-Type: application/json
+
+{
+  "id": "5ac010ee-ea74-4898-a10d-75170d67576c",
+  "title": "asjdhjkadhkl",
+  "owner": "asdadhasjhdjk"
+}
+
+### Try to add changes without owner
+PUT http://localhost:8080/api/issue
+Accept: */*
+Content-Type: application/json
+
+{
+  "id": "52e25583-b8d0-46ee-b27b-8af18608da30",
+  "title": "Put changes ",
+  "owner": ""
+}
+
+### Try to add changes without data
+PUT http://localhost:8080/api/issue
+Accept: */*
+Content-Type: application/json
+
+{
+  "id": "",
+  "title": "",
+  "owner": ""
+}
+
+### Change only Attr  title of issue and save
+PATCH http://localhost:8080/api/issue/91004982-8bdc-4153-a11c-7a048a08e1e3
+Accept: */*
+Content-Type: application/json
+
+{
+  "title": "New Header"
+}
+
+
+### Change only Attr  owner  of issue and save
+PATCH http://localhost:8080/api/issue/91004982-8bdc-4153-a11c-7a048a08e1e3
+Accept: */*
+Content-Type: application/json
+
+{
+  "owner": "New Owner von AJ.JA"
+}
+
+
+### Try to Change only Attr  title with value null
+PATCH http://localhost:8080/api/issue/933bf597-8487-43b3-8e79-52d3292ca244
+Accept: */*
+Content-Type: application/json
+
+{
+  "title": ""
+}
+
+
+### try Change only Attr owner with value null
+PATCH http://localhost:8080/api/issue/91004982-8bdc-4153-a11c-7a048a08e1e3
+Accept: */*
+Content-Type: application/json
+
+{
+  "owner": ""
+}
+
+### try Change Attr that dont exist
+PATCH http://localhost:8080/api/issue/12f882b7-d00e-4a1a-9a6a-e2d3b1d4d36d
+Accept: */*
+Content-Type: application/json
+
+{
+  "test": "asd"
+}
+
+
+### try Change Attr that dont exist with value null
+PATCH http://localhost:8080/api/issue/91004982-8bdc-4153-a11c-7a048a08e1e3
+Accept: */*
+Content-Type: application/json
+
+{
+  "test": ""
+}
+
+
+### try Change Attr that dont exist with value null and with wrong id
+PATCH http://localhost:8080/api/issue/d0348a7e-9117-41d8-b0fa-fe12f9e3809c
+Accept: */*
+Content-Type: application/json
+
+{
+  "test": ""
+}
+
+
+### try Change Attr that all values
+PATCH http://localhost:8080/api/issue/91004982-8bdc-4153-a11c-7a048a08e1e3
+Accept: */*
+Content-Type: application/json
+
+{
+  "title": "TT",
+  "owner": ""
+}
+
+### try Change Attr that all values
+PATCH http://localhost:8080/api/issue/2edbc776-e218-49d7-b9b7-6800135667b1
+Accept: */*
+Content-Type: application/json
+
+{
+  "title": "TTASDGASGDAK",
+  "owner": ""
+}
+
+
+### try delete issue
+DELETE http://localhost:8080/api/issue/91004982-8bdc-4153-a11c-7a048a08e1e3
+Accept: */*
