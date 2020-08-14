@@ -99,9 +99,15 @@ class IssueController(private val issueService: IssueService) {
     }
 
     @GetMapping("/issues/{id}")
-    fun issuesOfAnUser(@PathVariable id: UUID?) : Flux<IssueModel> {
+    fun issuesOfAnUser(@PathVariable id: UUID) : Flux<IssueModel> {
         var allIssues : Flux<IssueModel>  = issueService.getAllIssues()
-
-    })
-
-}
+        var issues: MutableList<IssueModel> = ArrayList()
+        allIssues.map { x->
+            if(x.owner == id.toString()){
+                issues.add(x)
+            }
+            allIssues
+        }
+        return Flux.fromIterable(issues)
+    }
+    }
