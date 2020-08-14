@@ -27,6 +27,10 @@ class IssueService(private val issueRepository: IssueRepository) {
                 .switchIfEmpty(Mono.error(NotFoundException("Id not found")))
     }
 
+    fun getAllIssues() : Flux<IssueModel>{
+        return issueRepository.findAll()
+    }
+
 
     /**
      * Here, after the issue has been reviewed again,

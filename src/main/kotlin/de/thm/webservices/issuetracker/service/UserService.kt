@@ -18,4 +18,8 @@ class UserService(
     fun getByUsername(username: String): Mono<User> {
         return userRepository.findByUsername(username)
     }
+
+    fun post(user:User) : Mono<User> {
+        return userRepository.save(user)
+    }
 }
