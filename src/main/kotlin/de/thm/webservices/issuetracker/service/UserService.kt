@@ -6,6 +6,7 @@ import de.thm.webservices.issuetracker.repository.UserRepository
 import de.thm.webservices.issuetracker.security.AuthenticatedUser
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
 
@@ -15,6 +16,10 @@ class UserService(
 ) {
     fun get(id: UUID): Mono<UserModel> {
         return userRepository.findById(id)
+    }
+
+    fun getAll(): Flux<UserModel> {
+        return userRepository.findAll()
     }
 
     fun getByUsername(username: String): Mono<UserModel> {
