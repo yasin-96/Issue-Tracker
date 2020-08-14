@@ -2,12 +2,15 @@ package de.thm.webservices.issuetracker.controller
 
 import de.thm.webservices.issuetracker.exception.ForbiddenException
 import de.thm.webservices.issuetracker.exception.NoContentException
+import de.thm.webservices.issuetracker.exception.NotModifiedException
 import de.thm.webservices.issuetracker.model.UserModel
+import de.thm.webservices.issuetracker.security.AuthenticatedUser
 import de.thm.webservices.issuetracker.service.UserService
 import de.thm.webservices.issuetracker.util.checkUUID
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 import java.util.UUID
+import java.util.function.Function
 
 @RestController("UserController")
 class UserController(private val userService: UserService) {
@@ -24,15 +27,16 @@ class UserController(private val userService: UserService) {
     }
 
     @PostMapping("/user")
-    fun post(@RequestBody userModel: UserModel) : Mono<UserModel>{
-        return if (userModel.role == "admin") {
-            userService.post(userModel)
-        }
+    fun post(@RequestBody userModel: UserModel ) : Mono<UserModel>{
 
-        else {
-            Mono.error(ForbiddenException())
+      return  userService.getCurrentUserRole().
+              switchIfEmpty(Mono.just("error hier"))
+              .flatMap {
+                userService.post(userModel)
+                        .switchIfEmpty(Mono.error(NotModifiedException()))
         }
-        }
+    }
+
 
     /*
     @DeleteMapping("/user/{id}")
