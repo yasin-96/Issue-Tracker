@@ -17,7 +17,7 @@ import kotlin.collections.ArrayList
 
 
 @RestController("IssueController")
-@RequestMapping("/api/")
+//@RequestMapping("/api/")
 class IssueController(private val issueService: IssueService) {
 
 
@@ -99,9 +99,19 @@ class IssueController(private val issueService: IssueService) {
     }
 
     @GetMapping("/issues/{id}")
-    fun issuesOfAnUser(@PathVariable id: UUID?) : Flux<IssueModel> {
-        var allIssues : Flux<IssueModel>  = issueService.getAllIssues()
+    fun issuesOfAnUser(@PathVariable id: UUID) : Flux<MutableList<IssueModel>> {
+        return issueService.getAllIssues()
+                .map {
+                    var issues: MutableList<IssueModel> = mutableListOf()
+                    if(it.owner == id.toString()){
+                        issues.add(it)
+                    }
+                    issues
+                }
+    }
 
-    })
-
-}
+    @GetMapping("/allIssues")
+    fun allIssues() : Flux<IssueModel> {
+        return issueService.getAllIssues()
+    }
+    }

@@ -67,7 +67,7 @@ class IssueService(private val issueRepository: IssueRepository) {
         return getIssueById(idOfIssue)
                 .switchIfEmpty(Mono.error(NotFoundException()))
                 .flatMap {
-                    issueRepository.save(IssueModel(it.id, issueModelToUpdate.title, issueModelToUpdate.owner))
+                    issueRepository.save(IssueModel(it.id, issueModelToUpdate.title, issueModelToUpdate.owner, issueModelToUpdate.deadline))
                             .switchIfEmpty(Mono.error(NotModifiedException("Id was not found and issue was not modified")))
                 }
     }
@@ -116,7 +116,7 @@ class IssueService(private val issueRepository: IssueRepository) {
                         }
                     }
 
-                    issueRepository.save(IssueModel(it.id, it.title, it.owner))
+                    issueRepository.save(IssueModel(it.id, it.title, it.owner,it.deadline))
                             .switchIfEmpty(Mono.error(NotModifiedException("Could not update prop from Issue ")))
                 }
 

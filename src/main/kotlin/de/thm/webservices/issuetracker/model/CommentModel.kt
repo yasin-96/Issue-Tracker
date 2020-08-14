@@ -4,10 +4,11 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 import java.util.*
 
-@Table("issues")
-data class IssueModel(
+@Table("comments")
+data class CommentModel(
         @Id var id: UUID?,
-        var title: String,
-        var owner: String,
-        var deadline : String
+        var content: String,
+        var user: String,
+        var issue: String,
+        var creation: String
 )

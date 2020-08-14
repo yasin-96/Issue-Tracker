@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.security.access.AccessDeniedException
-import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity
 import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.core.AuthenticationException
@@ -29,7 +28,7 @@ class SecurityConfig(
 
     @Bean
     fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        val patterns = arrayOf("/auth/login")
+        val patterns = arrayOf("/auth/login", "/issue")
         return http.cors().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint { swe: ServerWebExchange, e: AuthenticationException? ->
