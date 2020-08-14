@@ -1,5 +1,6 @@
 package de.thm.webservices.issuetracker.service
 
+import de.thm.webservices.issuetracker.exception.ForbiddenException
 import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.repository.UserRepository
@@ -14,6 +15,26 @@ import java.util.*
 class UserService(
         private val userRepository: UserRepository
 ) {
+
+    fun getCurrentUserRole() : Mono<String> {
+        return ReactiveSecurityContextHolder.getContext()
+                .map { securityContext ->
+                    securityContext.authentication
+                }
+                .cast(AuthenticatedUser::class.java)
+                .filter { authenticatedUser ->
+                    authenticatedUser.authorities.all {
+                        it!!.authority == "admin"
+                    }
+                }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .map { authenticatedUser ->
+                    authenticatedUser.authorities.toString()
+                }
+
+    }
+
+
     fun get(id: UUID): Mono<UserModel> {
         return userRepository.findById(id)
     }
@@ -31,20 +52,17 @@ class UserService(
     }
 
     fun delete(id: UUID): Mono<Void> {
-
-        ReactiveSecurityContextHolder.getContext()
+        return ReactiveSecurityContextHolder.getContext()
                 .map { securityContext ->
                     securityContext.authentication
                 }
                 .cast(AuthenticatedUser::class.java)
                 .filter { authenticatedUser ->
-                    authenticatedUser.credentials == id
-                }.flatMap {
-                    userRepository.deleteById(id)
-                            .switchIfEmpty(Mono.error(NoContentException("Wrong with this id could not deleted")))
+                    authenticatedUser.name == id.toString()
                 }
-
-        return Mono.error(NoContentException("ID not found"))
-
+                .switchIfEmpty(Mono.error(ForbiddenException("User can only delete his own account")))
+                .flatMap {
+                    userRepository.deleteById(id)
+                }
     }
 }

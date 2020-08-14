@@ -1,5 +1,6 @@
 package de.thm.webservices.issuetracker.controller
 
+import de.thm.webservices.issuetracker.exception.BadRequestException
 import de.thm.webservices.issuetracker.exception.ForbiddenException
 import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.model.UserModel
@@ -31,13 +32,12 @@ class UserController(private val userService: UserService) {
 
     @PostMapping("/user")
     fun post(@RequestBody userModel: UserModel) : Mono<UserModel>{
-        return if (userModel.role == "admin") {
-            userService.post(userModel)
-        }
-
-        else {
-            Mono.error(ForbiddenException())
-        }
+        return userService.getCurrentUserRole()
+                .switchIfEmpty(Mono.error(BadRequestException()))
+                .flatMap {
+                    userService.post(userModel)
+                            .switchIfEmpty(Mono.error(NoContentException("User could not be created")))
+                }
     }
 
 
