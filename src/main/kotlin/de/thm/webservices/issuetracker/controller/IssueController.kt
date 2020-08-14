@@ -10,8 +10,10 @@ import de.thm.webservices.issuetracker.util.checkIssueModel
 import de.thm.webservices.issuetracker.util.checkPatchObject
 import de.thm.webservices.issuetracker.util.checkUUID
 import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 @RestController("IssueController")
@@ -95,5 +97,11 @@ class IssueController(private val issueService: IssueService) {
         }
         return Mono.error(BadRequestException("Wrong data was send. Id was not an UUIDV4 or path object are not valid"))
     }
+
+    @GetMapping("/issues/{id}")
+    fun issuesOfAnUser(@PathVariable id: UUID?) : Flux<IssueModel> {
+        var allIssues : Flux<IssueModel>  = issueService.getAllIssues()
+
+    })
 
 }
