@@ -34,6 +34,7 @@ class UserController(private val userService: UserService) {
         }
         }
 
+    /*
     @DeleteMapping("/user/{id}")
     fun delete(
             @PathVariable id: UUID
@@ -42,5 +43,5 @@ class UserController(private val userService: UserService) {
             return userService.delete(id)
         }
         return Mono.error(NoContentException("Wrong id was sending. ID is not an UUIDv4"))
-    }
+    }*/
 }

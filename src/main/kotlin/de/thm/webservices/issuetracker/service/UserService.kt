@@ -10,8 +10,8 @@ import java.util.*
 
 @Service
 class UserService(
-        private val userRepository: UserRepository,
-        private val authenticatedUser: AuthenticatedUser
+        private val userRepository: UserRepository
+       // private val authenticatedUser: AuthenticatedUser
 ) {
     fun get(id: UUID): Mono<UserModel> {
         return userRepository.findById(id)
@@ -25,11 +25,11 @@ class UserService(
         return userRepository.save(userModel)
     }
 
-    fun delete(id: UUID): Mono<Void> {
-        if (id == authenticatedUser.credentials as UUID) {
+    /*fun delete(id: UUID): Mono<Void> {
+       // if (id == authenticatedUser.credentials as UUID) {
             return userRepository.deleteById(id)
         }
         return Mono.error(NoContentException("Wrong UserID"))
 
-    }
+    }*/
 }
