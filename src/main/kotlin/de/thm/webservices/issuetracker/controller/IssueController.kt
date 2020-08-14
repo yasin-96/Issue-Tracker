@@ -17,7 +17,7 @@ import kotlin.collections.ArrayList
 
 
 @RestController("IssueController")
-@RequestMapping("/api/")
+//@RequestMapping("/api/")
 class IssueController(private val issueService: IssueService) {
 
 
