@@ -1,7 +1,7 @@
 package de.thm.webservices.issuetracker.controller
 
 import de.thm.webservices.issuetracker.exception.ForbiddenException
-import de.thm.webservices.issuetracker.model.User
+import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.service.UserService
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
@@ -17,14 +17,14 @@ class UserController(private val userService: UserService) {
      * @return
      */
     @GetMapping("/user/{id}")
-    fun get(@PathVariable id: UUID): Mono<User> {
+    fun get(@PathVariable id: UUID): Mono<UserModel> {
         return userService.get(id)
     }
 
     @PostMapping("/user")
-    fun post(@RequestBody user:User ) : Mono<User>{
-        return if (user.role == "admin") {
-            userService.post(user)
+    fun post(@RequestBody userModel:UserModel ) : Mono<UserModel>{
+        return if (userModel.role == "admin") {
+            userService.post(userModel)
         }
 
         else {

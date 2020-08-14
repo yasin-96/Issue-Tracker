@@ -1,6 +1,6 @@
 package de.thm.webservices.issuetracker.service
 
-import de.thm.webservices.issuetracker.model.User
+import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.repository.UserRepository
 import de.thm.webservices.issuetracker.security.JwtUtil
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -16,13 +16,15 @@ class AuthenticationService(
 
     fun login(username: String, password: String): Mono<String> {
         return userRepository.findByUsername(username)
-                .flatMap { user: User ->
-                    if (passwordEncoder.matches(password, user.password)) {
+                .flatMap { userModel: UserModel ->
+                    if (passwordEncoder.matches(password, userModel.password)) {
                     //if (password == user.password) {
-                        Mono.just(jwtUtil.generateToken(user))
+                        Mono.just(jwtUtil.generateToken(userModel))
                     } else {
                         Mono.empty<String>()
                     }
                 }
     }
+
+
 }

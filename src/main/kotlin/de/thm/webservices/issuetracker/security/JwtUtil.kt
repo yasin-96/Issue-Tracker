@@ -1,6 +1,6 @@
 package de.thm.webservices.issuetracker.security
 
-import de.thm.webservices.issuetracker.model.User
+import de.thm.webservices.issuetracker.model.UserModel
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -42,10 +42,10 @@ class JwtUtil(
         return expiration.before(Date())
     }
 
-    fun generateToken(user: User): String {
+    fun generateToken(userModel: UserModel): String {
         return Jwts.builder()
-                .setSubject(user.id.toString())
-                .claim(CLAIM_KEY, listOf(user.role))
+                .setSubject(userModel.id.toString())
+                .claim(CLAIM_KEY, listOf(userModel.role))
                 .signWith(SignatureAlgorithm.HS256, signingKey)
                 .setIssuedAt(Date(System.currentTimeMillis()))
                 .setExpiration(Date(System.currentTimeMillis() + 5 * 60 * 60 * 1000))
