@@ -15,6 +15,26 @@ import java.util.*
 class UserService(
         private val userRepository: UserRepository
 ) {
+
+    fun getCurrentUserRole() : Mono<String> {
+        return ReactiveSecurityContextHolder.getContext()
+                .map { securityContext ->
+                    securityContext.authentication
+                }
+                .cast(AuthenticatedUser::class.java)
+                .filter { authenticatedUser ->
+                    authenticatedUser.authorities.all {
+                        it!!.authority == "admin"
+                    }
+                }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .map { authenticatedUser ->
+                    authenticatedUser.authorities.toString()
+                }
+
+    }
+
+
     fun get(id: UUID): Mono<UserModel> {
         return userRepository.findById(id)
     }
