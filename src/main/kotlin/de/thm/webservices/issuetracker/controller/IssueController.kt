@@ -102,12 +102,19 @@ class IssueController(private val issueService: IssueService) {
     fun issuesOfAnUser(@PathVariable id: UUID) : Flux<IssueModel> {
         var allIssues : Flux<IssueModel>  = issueService.getAllIssues()
         var issues: MutableList<IssueModel> = ArrayList()
+        println(id)
         allIssues.map { x->
             if(x.owner == id.toString()){
                 issues.add(x)
             }
             allIssues
         }
+        println(issues)
         return Flux.fromIterable(issues)
+    }
+
+    @GetMapping("/allIssues")
+    fun allIssues() : Flux<IssueModel> {
+        return issueService.getAllIssues()
     }
     }
