@@ -12,7 +12,7 @@ import java.util.*
 class CommentService(private val commentRepository: CommentRepository) {
 
     fun getAllCommentById(issueId: UUID): Flux<CommentModel> {
-        return commentRepository.findAllByIssueId(issueId)
+        return commentRepository.findAllByIssue(issueId)
                 .switchIfEmpty(Mono.error(NoContentException("Id in comment for issue was not correct")))
     }
 
