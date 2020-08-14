@@ -28,7 +28,7 @@ class SecurityConfig(
 
     @Bean
     fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        val patterns = arrayOf("/auth/login")
+        val patterns = arrayOf("/auth/login", "/issue")
         return http.cors().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint { swe: ServerWebExchange, e: AuthenticationException? ->
