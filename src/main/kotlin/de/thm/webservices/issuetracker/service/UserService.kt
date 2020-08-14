@@ -1,5 +1,6 @@
 package de.thm.webservices.issuetracker.service
 
+import de.thm.webservices.issuetracker.exception.ForbiddenException
 import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.repository.UserRepository
@@ -39,7 +40,7 @@ class UserService(
                 .filter { authenticatedUser ->
                     authenticatedUser.name == id.toString()
                 }
-                .switchIfEmpty(Mono.error(Throwable("Wrong ID")))
+                .switchIfEmpty(Mono.error(ForbiddenException("User can only delete his own account")))
                 .flatMap {
                     userRepository.deleteById(id)
                 }
