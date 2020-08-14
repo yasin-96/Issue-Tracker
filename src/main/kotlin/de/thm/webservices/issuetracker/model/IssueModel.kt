@@ -4,7 +4,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Table
 import java.util.*
 
-@Table("ISSUES")
+@Table("issues")
 data class IssueModel(
         @Id var id: UUID?,
         var title: String,

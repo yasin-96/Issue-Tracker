@@ -17,3 +17,15 @@ CREATE TABLE users (
    PRIMARY KEY (id),
    UNIQUE(username)
 );
+
+
+CREATE TABLE comments (
+   id UUID NOT NULL DEFAULT random_uuid (),
+   content VARCHAR(255) NOT NULL,
+   userId VARCHAR(255) NOT NULL,
+   issueId VARCHAR(255) NOT NULL,
+   creation VARCHAR(255) NOT NULL,
+
+   PRIMARY KEY (id)
+);
+
