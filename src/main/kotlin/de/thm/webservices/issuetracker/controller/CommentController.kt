@@ -5,9 +5,7 @@ import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.service.CommentService
 import de.thm.webservices.issuetracker.util.checkUUID
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
@@ -17,7 +15,7 @@ class CommentController(
         private val commentService: CommentService
 ) {
 
-    @GetMapping("/issue/comment/{id}")
+    @GetMapping("/comments/issue/{id}")
     fun getAllCommentFromIssueById(@PathVariable id: UUID?): Flux<CommentModel> {
 
         if(checkUUID(id)) {
@@ -26,5 +24,10 @@ class CommentController(
         }
 
         return Flux.from(Mono.error(BadRequestException("Wrong id ")))
+    }
+
+    @PostMapping("/comment")
+    fun addNewComment(@RequestBody commentModel: CommentModel?): Mono<CommentModel> {
+        return commentService.post(commentModel!!)
     }
 }

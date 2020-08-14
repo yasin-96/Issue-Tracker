@@ -16,4 +16,15 @@ class CommentService(private val commentRepository: CommentRepository) {
                 .switchIfEmpty(Mono.error(NoContentException("Id in comment for issue was not correct")))
     }
 
+    /**
+     * Create new comment for issue
+     *
+     * @param commentModel comment to create
+     * @return
+     */
+    fun post(commentModel: CommentModel): Mono<CommentModel>{
+        return commentRepository.save(commentModel)
+                .switchIfEmpty(Mono.error(NoContentException("Could not create new comment for issue")))
+    }
+
 }
