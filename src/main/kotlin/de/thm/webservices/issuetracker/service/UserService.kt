@@ -24,10 +24,10 @@ class UserService(
                 .cast(AuthenticatedUser::class.java)
                 .filter { authenticatedUser ->
                     authenticatedUser.authorities.all {
-                        it!!.authority == "admin"
+                        it!!.authority == "ADMIN"
                     }
                 }
-                .switchIfEmpty(Mono.error(ForbiddenException()))
+                //.switchIfEmpty(Mono.error(ForbiddenException()))
                 .map { authenticatedUser ->
                     authenticatedUser.authorities.toString()
                 }

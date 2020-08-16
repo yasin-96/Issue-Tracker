@@ -5,10 +5,12 @@ import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.service.IssueService
+import de.thm.webservices.issuetracker.service.UserService
 import de.thm.webservices.issuetracker.util.checkImportantProps
 import de.thm.webservices.issuetracker.util.checkIssueModel
 import de.thm.webservices.issuetracker.util.checkPatchObject
 import de.thm.webservices.issuetracker.util.checkUUID
+import org.springframework.data.relational.core.sql.Not
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -75,10 +77,13 @@ class IssueController(private val issueService: IssueService) {
      */
     @DeleteMapping("/issue/{id}")
     fun deleteIssue(@PathVariable id: UUID?): Mono<Void> {
-        if (checkUUID(id)) {
-            return issueService.removeIssueById(id!!)
+        if (checkUUID(id!!)) {
+            return issueService.getIssueById(id).flatMap {
+                issueService.deleteIssue(it)
+            }
+
         }
-        return Mono.error(NoContentException("Wrong id was sending. ID is not an UUIDv4"))
+        return Mono.error(NotFoundException("The entered issue id is not existing"))
     }
 
     /**

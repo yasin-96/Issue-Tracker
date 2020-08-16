@@ -46,13 +46,29 @@ class IssueService(private val issueRepository: IssueRepository) {
                 }
                 .cast(AuthenticatedUser::class.java)
                 .filter { authenticatedUser ->
-                    authenticatedUser.name == newIssueModel.owner.toString()
+                    authenticatedUser.name == newIssueModel.owner
                 }
                 .switchIfEmpty(Mono.error(ForbiddenException()))
-                .flatMap { authenticatedUser ->
+                .flatMap {
                     issueRepository.save(newIssueModel)
                             .switchIfEmpty(Mono.error(NoContentException("Could not create new issue")))
                             .map{ it.id!! }
+                }
+    }
+
+    fun deleteIssue(issue:IssueModel) : Mono<Void> {
+        return ReactiveSecurityContextHolder.getContext()
+                .map { securityContext ->
+                    securityContext.authentication
+                }
+                .cast(AuthenticatedUser::class.java)
+                .filter { authenticatedUser ->
+                    authenticatedUser.credentials == issue.owner
+                }
+                .switchIfEmpty(Mono.error(ForbiddenException("You are not the owner of the issue")))
+                .flatMap {
+                    issueRepository.delete(issue)
+                            .switchIfEmpty(Mono.error(NoContentException("Could not delete issue")))
                 }
     }
 

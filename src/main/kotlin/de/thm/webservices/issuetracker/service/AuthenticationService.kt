@@ -1,5 +1,7 @@
 package de.thm.webservices.issuetracker.service
 
+import de.thm.webservices.issuetracker.exception.BadRequestException
+import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.repository.UserRepository
 import de.thm.webservices.issuetracker.security.JwtUtil
@@ -16,12 +18,13 @@ class AuthenticationService(
 
     fun login(username: String, password: String): Mono<String> {
         return userRepository.findByUsername(username)
+                .switchIfEmpty(Mono.error(NotFoundException("Username does not exist")))
                 .flatMap { userModel: UserModel ->
                     if (passwordEncoder.matches(password, userModel.password)) {
                     //if (password == user.password) {
                         Mono.just(jwtUtil.generateToken(userModel))
                     } else {
-                        Mono.empty<String>()
+                        Mono.empty()
                     }
                 }
     }
