@@ -1,6 +1,7 @@
 package de.thm.webservices.issuetracker.service
 
 import de.thm.webservices.issuetracker.exception.NoContentException
+import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import org.springframework.stereotype.Service
@@ -25,6 +26,11 @@ class CommentService(private val commentRepository: CommentRepository) {
     fun post(commentModel: CommentModel): Mono<CommentModel>{
         return commentRepository.save(commentModel)
                 .switchIfEmpty(Mono.error(NoContentException("Could not create new comment for issue")))
+    }
+
+    fun getAllComments() : Flux<CommentModel> {
+        return commentRepository.findAll()
+                .switchIfEmpty(Mono.error(NotFoundException("There are no comments.")))
     }
 
 }
