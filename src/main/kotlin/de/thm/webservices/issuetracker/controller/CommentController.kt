@@ -2,12 +2,10 @@ package de.thm.webservices.issuetracker.controller
 
 import de.thm.webservices.issuetracker.exception.BadRequestException
 import de.thm.webservices.issuetracker.exception.NoContentException
-import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.service.CommentService
 import de.thm.webservices.issuetracker.util.checkMultiplyRequestParamForDeletingComment
 import de.thm.webservices.issuetracker.util.checkUUID
-import org.springframework.data.repository.query.Param
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -66,6 +64,7 @@ class CommentController(
 
     }
 
+    //TODO löschen
     @GetMapping("/comment/{id}")
     fun getOneComment(@PathVariable id: UUID?): Mono<CommentModel> {
         if(checkUUID(id)){
@@ -78,5 +77,4 @@ class CommentController(
     fun getAllComment(): Flux<CommentModel> {
         return commentService.getAll()
     }
-
 }

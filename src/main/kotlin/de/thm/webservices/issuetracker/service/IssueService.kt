@@ -63,7 +63,7 @@ class IssueService(private val issueRepository: IssueRepository) {
                 }
                 .cast(AuthenticatedUser::class.java)
                 .filter { authenticatedUser ->
-                    authenticatedUser.credentials == issue.owner
+                    authenticatedUser.name == issue.ownerId.toString()
                 }
                 .switchIfEmpty(Mono.error(ForbiddenException("You are not the owner of the issue")))
                 .flatMap {

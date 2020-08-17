@@ -8,8 +8,7 @@ import java.util.*
 
 @Repository
 interface CommentRepository: ReactiveCrudRepository<CommentModel, UUID> {
-    fun findAllByIssue(issueId: UUID): Flux<CommentModel>
+    fun findAllByIssueId(issueId: UUID): Flux<CommentModel>
 
     fun findAllByUser(userId: UUID): Flux<CommentModel>
-    //fun findAllByIssue_id(issueId: UUID): Flux<CommentModel>
 }

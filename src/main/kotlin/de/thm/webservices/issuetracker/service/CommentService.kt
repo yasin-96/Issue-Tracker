@@ -37,7 +37,7 @@ class CommentService(
      * @return
      */
     fun getAllCommentById(issueId: UUID): Flux<CommentModel> {
-        return commentRepository.findAllByIssue(issueId)
+        return commentRepository.findAllByIssueId(issueId)
                 .switchIfEmpty(Mono.error(NoContentException("Id in comment for issue was not correct")))
     }
 
@@ -98,7 +98,7 @@ class CommentService(
         return commentRepository.findById(commentId)
                 .switchIfEmpty(Mono.error(NotFoundException("Issue id was not found")))
                 .map {
-                    val check = if (it.user == currentUser) true else false
+                    val check = if (it.userId.toString() == currentUser) true else false
                     check
                 }
     }
@@ -123,6 +123,7 @@ class CommentService(
                 .switchIfEmpty(Mono.error(NoContentException("User has no comments written")))
     }
 
-
-
+    fun getAll(): Flux<CommentModel> {
+        return commentRepository.findAll()
+    }
 }
