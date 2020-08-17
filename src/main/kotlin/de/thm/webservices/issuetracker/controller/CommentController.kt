@@ -35,27 +35,6 @@ class CommentController(
         return Flux.from(Mono.error(BadRequestException("Wrong id ")))
     }
 
-    /**
-     * TODO
-     *
-     * @param userId
-     * @return
-     */
-    @GetMapping("/user/comments/{userId}")
-    fun getAllCommentsOfAnUser(@PathVariable userId : UUID?) : Flux<MutableList<CommentModel>> {
-        if(checkUUID(userId!!)) {
-            return commentService.getAllComments()
-                    .map {
-                        val comments : MutableList<CommentModel> = mutableListOf()
-                        if(it.id == userId){
-                            comments.add(it)
-                        }
-                        comments
-                    }
-                    .switchIfEmpty(Mono.error(NotFoundException("There are no comments availiable")))
-        }
-        return Flux.from(Mono.error(NotFoundException("That user id is not existing")))
-    }
 
     /**
      * TODO

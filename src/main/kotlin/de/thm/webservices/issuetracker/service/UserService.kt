@@ -2,6 +2,8 @@ package de.thm.webservices.issuetracker.service
 
 import de.thm.webservices.issuetracker.exception.ForbiddenException
 import de.thm.webservices.issuetracker.exception.NoContentException
+import de.thm.webservices.issuetracker.exception.NotFoundException
+import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.repository.UserRepository
 import de.thm.webservices.issuetracker.security.AuthenticatedUser
@@ -15,6 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 @Service
 class UserService(
         private val userRepository: UserRepository,
+        private val commentService: CommentService,
         private val passwordEncoder: BCryptPasswordEncoder
 ) {
 
@@ -66,6 +69,15 @@ class UserService(
                 .switchIfEmpty(Mono.error(ForbiddenException("User can only delete his own account")))
                 .flatMap {
                     userRepository.deleteById(id)
+                }
+    }
+
+    fun getAllCommentsFromUser(userId: UUID) : Flux<CommentModel> {
+        return get(userId)
+                .switchIfEmpty(Mono.error(NotFoundException("User not exist")))
+                .flatMapMany {
+                    commentService.getAllCommentsByUserId(userId)
+                            .switchIfEmpty(Mono.error(NotFoundException("There are no comments availiable")))
                 }
     }
 }

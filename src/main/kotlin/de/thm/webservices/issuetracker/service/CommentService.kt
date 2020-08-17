@@ -122,9 +122,12 @@ class CommentService(
                 }
     }
 
-    fun getAllComments() : Flux<CommentModel> {
-        return commentRepository.findAll()
-                .switchIfEmpty(Mono.error(NotFoundException("There are no comments.")))
+
+    fun getAllCommentsByUserId(userId: UUID): Flux<CommentModel> {
+        return commentRepository.findAllByUser(userId)
+                .switchIfEmpty(Mono.error(NoContentException("User has no comments written")))
     }
+
+
 
 }
