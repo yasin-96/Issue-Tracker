@@ -23,6 +23,12 @@ class CommentService(
         private val issueService: IssueService
 ) {
 
+    /**
+     * TODO
+     *
+     * @param commentId
+     * @return
+     */
     fun getCommentById(commentId: UUID): Mono<CommentModel> {
         return commentRepository.findById(commentId)
                 .switchIfEmpty(Mono.error(NotFoundException("Id not found")))
@@ -30,7 +36,7 @@ class CommentService(
 
 
     /**
-     * TODO
+     * Request all comments by issue id
      *
      * @param issueId
      * @return
@@ -53,8 +59,6 @@ class CommentService(
                 }
                 .cast(AuthenticatedUser::class.java)
                 .flatMap { authUser ->
-                    //TODO: würde das nicht genau das abfangen Ticket -> #24
-//                    commentModel.user = authUser.name
                     commentRepository.save(commentModel)
                             .switchIfEmpty(Mono.error(NoContentException("Could not create new comment for issue")))
                 }
@@ -99,7 +103,7 @@ class CommentService(
         return commentRepository.findById(commentId)
                 .switchIfEmpty(Mono.error(NotFoundException("Issue id was not found")))
                 .map {
-                    var check = if (it.user == currentUser) true else false
+                    val check = if (it.user == currentUser) true else false
                     check
                 }
     }

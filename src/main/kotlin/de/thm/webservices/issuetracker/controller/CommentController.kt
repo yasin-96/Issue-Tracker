@@ -18,6 +18,12 @@ class CommentController(
         private val commentService: CommentService
 ) {
 
+    /**
+     * TODO
+     *
+     * @param id
+     * @return
+     */
     @GetMapping("/comments/issue/{id}")
     fun getAllCommentFromIssueById(@PathVariable id: UUID?): Flux<CommentModel> {
 
@@ -29,7 +35,12 @@ class CommentController(
         return Flux.from(Mono.error(BadRequestException("Wrong id ")))
     }
 
-
+    /**
+     * TODO
+     *
+     * @param userId
+     * @return
+     */
     @GetMapping("/user/comments/{userId}")
     fun getAllCommentsOfAnUser(@PathVariable userId : UUID?) : Flux<MutableList<CommentModel>> {
         if(checkUUID(userId!!)) {
@@ -40,17 +51,30 @@ class CommentController(
                             comments.add(it)
                         }
                         comments
-                    } .switchIfEmpty(Mono.error(NotFoundException("There are no comments availiable")))
+                    }
+                    .switchIfEmpty(Mono.error(NotFoundException("There are no comments availiable")))
         }
         return Flux.from(Mono.error(NotFoundException("That user id is not existing")))
     }
 
-
+    /**
+     * TODO
+     *
+     * @param commentModel
+     * @return
+     */
     @PostMapping("/comment")
     fun addNewComment(@RequestBody commentModel: CommentModel?): Mono<CommentModel> {
         return commentService.post(commentModel!!)
     }
 
+    /**
+     * TODO
+     *
+     * @param cId
+     * @param iId
+     * @return
+     */
     @DeleteMapping("/comment")
     fun deleteComment(
             @RequestParam cId: UUID?,
