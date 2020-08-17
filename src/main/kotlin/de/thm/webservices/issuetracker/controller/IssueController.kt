@@ -119,4 +119,4 @@ class IssueController(private val issueService: IssueService) {
     fun allIssues() : Flux<IssueModel> {
         return issueService.getAllIssues()
     }
-    }
+}

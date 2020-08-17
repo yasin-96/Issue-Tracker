@@ -31,7 +31,7 @@ class UserService(
                         it!!.authority == "ADMIN"
                     }
                 }
-                //.switchIfEmpty(Mono.error(ForbiddenException()))
+                .switchIfEmpty(Mono.error(ForbiddenException()))
                 .map { authenticatedUser ->
                     authenticatedUser.authorities.toString()
                 }
