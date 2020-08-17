@@ -103,7 +103,7 @@ class IssueController(private val issueService: IssueService) {
         return issueService.getAllIssues()
                 .map {
                     var issues: MutableList<IssueModel> = mutableListOf()
-                    if(it.owner == id.toString()){
+                    if(it.ownerId == id){
                         issues.add(it)
                     }
                     issues

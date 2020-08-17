@@ -1,18 +1,15 @@
 package de.thm.webservices.issuetracker.service
 
-import de.thm.webservices.issuetracker.exception.*
+import de.thm.webservices.issuetracker.exception.ForbiddenException
+import de.thm.webservices.issuetracker.exception.NoContentException
+import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.security.AuthenticatedUser
-import org.springframework.data.util.CastUtils.cast
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
-import reactor.kotlin.extra.bool.logicalAnd
-import reactor.kotlin.extra.bool.logicalOr
-import java.security.PrivateKey
 import java.util.*
 
 @Service
@@ -34,7 +31,8 @@ class CommentService(
      * @return
      */
     fun getAllCommentById(issueId: UUID): Flux<CommentModel> {
-        return commentRepository.findAllByIssue(issueId)
+        //TODO stimmt nicht muss noch korrigiert werden
+        return commentRepository.findAll()
                 .switchIfEmpty(Mono.error(NoContentException("Id in comment for issue was not correct")))
     }
 
@@ -51,7 +49,7 @@ class CommentService(
                 }
                 .cast(AuthenticatedUser::class.java)
                 .flatMap { authUser ->
-                    commentModel.user = authUser.name
+                    //commentModel.userId = UUID()
                     commentRepository.save(commentModel)
                             .switchIfEmpty(Mono.error(NoContentException("Could not create new comment for issue")))
                 }
@@ -60,7 +58,7 @@ class CommentService(
     /**
      *
      *
-     * @param commentModel
+     * @param commentId
      * @return
      */
     fun deleteComment(commentId: UUID, issueId: UUID): Mono<Void> {
@@ -87,7 +85,6 @@ class CommentService(
                             .switchIfEmpty(Mono.error(ForbiddenException()))
                             .map { it }
                 }
-                .
                 .flatMap {
                     removeCommentById(commentId)
                 }
@@ -104,8 +101,7 @@ class CommentService(
         return commentRepository.findById(commentId)
                 .switchIfEmpty(Mono.error(NotFoundException("Issue id was not found")))
                 .map {
-                    var check = if (it.user == currentUser) true else false
-                    check
+                    it.userId.toString() == currentUser
                 }
     }
 

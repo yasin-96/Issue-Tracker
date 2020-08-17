@@ -46,7 +46,7 @@ class IssueService(private val issueRepository: IssueRepository) {
                 }
                 .cast(AuthenticatedUser::class.java)
                 .filter { authenticatedUser ->
-                    authenticatedUser.name == newIssueModel.owner
+                    authenticatedUser.name == newIssueModel.ownerId.toString()
                 }
                 .switchIfEmpty(Mono.error(ForbiddenException()))
                 .flatMap { authenticatedUser ->
@@ -67,7 +67,7 @@ class IssueService(private val issueRepository: IssueRepository) {
         return getIssueById(idOfIssue)
                 .switchIfEmpty(Mono.error(NotFoundException()))
                 .flatMap {
-                    issueRepository.save(IssueModel(it.id, issueModelToUpdate.title, issueModelToUpdate.owner, issueModelToUpdate.deadline))
+                    issueRepository.save(IssueModel(it.id, issueModelToUpdate.title, issueModelToUpdate.ownerId, issueModelToUpdate.deadline))
                             .switchIfEmpty(Mono.error(NotModifiedException("Id was not found and issue was not modified")))
                 }
     }
@@ -108,29 +108,29 @@ class IssueService(private val issueRepository: IssueRepository) {
                             } else {
                                 it.title
                             }
-                            "owner" -> it.owner = if (!k.value?.toString().isNullOrEmpty()) {
-                                k.value.toString()
+                            "ownerId" -> it.ownerId = if (!k.value?.toString().isNullOrEmpty()) {
+                                k.value as UUID
                             } else {
-                                it.owner
+                                it.ownerId
                             }
                         }
                     }
 
-                    issueRepository.save(IssueModel(it.id, it.title, it.owner,it.deadline))
+                    issueRepository.save(IssueModel(it.id, it.title, it.ownerId,it.deadline))
                             .switchIfEmpty(Mono.error(NotModifiedException("Could not update prop from Issue ")))
                 }
 
     }
 
     fun getByOwner(ownerId: String): Flux<IssueModel> {
-        return issueRepository.findByOwner(ownerId)
+        return issueRepository.findByOwnerId(ownerId)
     }
 
     fun checkCurrentUserIsOwnerOfIssue(currentUser: String, issueId: UUID): Mono<Boolean>{
         return issueRepository.findById(issueId)
                 .switchIfEmpty(Mono.error(NotFoundException("Issue id was not found")))
                 .map {
-                    var check = if( it.owner == currentUser ) true else false
+                    var check = it.ownerId.toString() == currentUser
                     check
                 }
     }

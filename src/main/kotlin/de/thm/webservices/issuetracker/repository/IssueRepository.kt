@@ -9,5 +9,5 @@ import java.util.*
 
 @Repository
 interface IssueRepository : ReactiveCrudRepository<IssueModel, UUID> {
-    fun findByOwner(ownerId: String): Flux<IssueModel>
+    fun findByOwnerId(ownerId: String): Flux<IssueModel>
 }
