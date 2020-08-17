@@ -6,15 +6,10 @@ import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.security.AuthenticatedUser
-import org.springframework.data.util.CastUtils.cast
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
-import reactor.kotlin.extra.bool.logicalAnd
-import reactor.kotlin.extra.bool.logicalOr
-import java.security.PrivateKey
 import java.util.*
 
 @Service
