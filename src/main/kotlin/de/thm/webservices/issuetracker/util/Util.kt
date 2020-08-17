@@ -52,12 +52,18 @@ fun checkUUID(uuidToCheck: String?): Boolean {
  */
 fun checkIssueModel(issueModelToCheck: IssueModel?): Boolean {
 
-    if (issueModelToCheck?.id?.toString().isNullOrEmpty() || issueModelToCheck?.owner.isNullOrEmpty() || issueModelToCheck?.title.isNullOrEmpty()
+    if (issueModelToCheck?.id?.toString().isNullOrEmpty()
+            || issueModelToCheck?.owner.isNullOrEmpty()
+            || issueModelToCheck?.title.isNullOrEmpty()
+            || issueModelToCheck?.deadline.isNullOrEmpty()
     ) {
         return false
     }
 
-    if (issueModelToCheck?.id.toString().isNotEmpty() && issueModelToCheck?.owner!!.isNotEmpty() && issueModelToCheck.title.isNotEmpty()
+    if (issueModelToCheck?.id.toString().isNotEmpty()
+            && issueModelToCheck?.owner!!.isNotEmpty()
+            && issueModelToCheck.title.isNotEmpty()
+            && issueModelToCheck.deadline.isNotEmpty()
     ) {
         return true
     }
@@ -66,16 +72,18 @@ fun checkIssueModel(issueModelToCheck: IssueModel?): Boolean {
 }
 
 fun checkImportantProps(issueModelToCheck: IssueModel?) : Boolean{
-    if (issueModelToCheck?.id != null ||
-            issueModelToCheck?.owner.isNullOrEmpty() ||
-            issueModelToCheck?.title.isNullOrEmpty()
+    if (issueModelToCheck?.id != null
+            || issueModelToCheck?.owner.isNullOrEmpty()
+            || issueModelToCheck?.title.isNullOrEmpty()
+            || issueModelToCheck?.deadline.isNullOrEmpty()
     ) {
         return false
     }
 
-    if (issueModelToCheck?.id == null &&
-            issueModelToCheck?.owner!!.isNotEmpty()
+    if (issueModelToCheck?.id == null
+            && issueModelToCheck?.owner!!.isNotEmpty()
             && issueModelToCheck.title.isNotEmpty()
+            && issueModelToCheck.deadline.isNotEmpty()
     ) {
         return true
     }
@@ -100,4 +108,15 @@ fun checkPatchObject(patchObject: Map<String, Any?>?): Boolean {
         }
     }
     return false
+}
+
+fun checkMultiplyRequestParamForDeletingComment(commenId: UUID?, issueId: UUID?): Boolean{
+    if(commenId.toString().isNullOrEmpty() || issueId.toString().isNullOrEmpty()) {
+        return false
+    }
+
+    if(checkUUID(commenId) && checkUUID(issueId)){
+        return true
+    }
+    return true
 }

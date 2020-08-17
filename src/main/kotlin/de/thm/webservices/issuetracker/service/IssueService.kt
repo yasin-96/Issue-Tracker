@@ -138,7 +138,24 @@ class IssueService(private val issueRepository: IssueRepository) {
 
     }
 
+
     fun getByOwner(ownerId: String): Flux<IssueModel> {
         return issueRepository.findByOwner(ownerId)
+    }
+
+    /**
+     * TODO
+     *
+     * @param currentUser
+     * @param issueId
+     * @return
+     */
+    fun checkCurrentUserIsOwnerOfIssue(currentUser: String, issueId: UUID): Mono<Boolean>{
+        return issueRepository.findById(issueId)
+                .switchIfEmpty(Mono.error(NotFoundException("Issue id was not found")))
+                .map {
+                    var check = if( it.owner == currentUser ) true else false
+                    check
+                }
     }
 }
