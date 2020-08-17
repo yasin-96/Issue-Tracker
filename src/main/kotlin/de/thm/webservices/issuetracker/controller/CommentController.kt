@@ -4,7 +4,9 @@ import de.thm.webservices.issuetracker.exception.BadRequestException
 import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.service.CommentService
+import de.thm.webservices.issuetracker.util.checkMultiplyRequestParamForDeletingComment
 import de.thm.webservices.issuetracker.util.checkUUID
+import org.springframework.data.repository.query.Param
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -18,7 +20,7 @@ class CommentController(
     @GetMapping("/comments/issue/{id}")
     fun getAllCommentFromIssueById(@PathVariable id: UUID?): Flux<CommentModel> {
 
-        if(checkUUID(id)) {
+        if (checkUUID(id)) {
             return commentService.getAllCommentById(id!!)
                     .switchIfEmpty(Mono.error(NoContentException("No comments found for this issue")))
         }
@@ -30,4 +32,25 @@ class CommentController(
     fun addNewComment(@RequestBody commentModel: CommentModel?): Mono<CommentModel> {
         return commentService.post(commentModel!!)
     }
+
+    @DeleteMapping("/comment")
+    fun deleteComment(
+            @RequestParam cId: UUID?,
+            @RequestParam iId: UUID?
+    ): Mono<Void> {
+        if (checkMultiplyRequestParamForDeletingComment(cId, iId)) {
+            return commentService.deleteComment(cId!!, iId!!)
+        }
+        return Mono.error(BadRequestException())
+
+    }
+
+    @GetMapping("/comment/{id}")
+    fun getOneComment(@PathVariable id: UUID?): Mono<CommentModel> {
+        if(checkUUID(id)){
+            return commentService.getCommentById(id!!)
+        }
+        return Mono.error(BadRequestException())
+    }
+
 }

@@ -10,10 +10,12 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 
 @Service
 class UserService(
-        private val userRepository: UserRepository
+        private val userRepository: UserRepository,
+        private val passwordEncoder: BCryptPasswordEncoder
 ) {
 
     fun getCurrentUserRole() : Mono<String> {
@@ -24,7 +26,7 @@ class UserService(
                 .cast(AuthenticatedUser::class.java)
                 .filter { authenticatedUser ->
                     authenticatedUser.authorities.all {
-                        it!!.authority == "admin"
+                        it!!.authority == "ADMIN"
                     }
                 }
                 .switchIfEmpty(Mono.error(ForbiddenException()))
@@ -48,6 +50,7 @@ class UserService(
     }
 
     fun post(userModel: UserModel): Mono<UserModel> {
+        userModel.password = passwordEncoder.encode(userModel.password)
         return userRepository.save(userModel)
     }
 

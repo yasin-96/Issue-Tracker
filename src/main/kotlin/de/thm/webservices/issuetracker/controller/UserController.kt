@@ -6,13 +6,17 @@ import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.service.UserService
 import de.thm.webservices.issuetracker.util.checkUUID
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.UUID
 
+
+
 @RestController("UserController")
-class UserController(private val userService: UserService) {
+class UserController(private val userService: UserService,
+                     private val passwordEncoder: BCryptPasswordEncoder) {
 
     /**
      * TODO
@@ -50,6 +54,14 @@ class UserController(private val userService: UserService) {
         }
         return Mono.error(NoContentException("Wrong id was sending. ID is not an UUIDv4"))
     }
+
+
+    @GetMapping("/user/role")
+    fun getRole(): Mono<String> {
+        return userService.getCurrentUserRole()
+    }
+
+
 
 
 }
