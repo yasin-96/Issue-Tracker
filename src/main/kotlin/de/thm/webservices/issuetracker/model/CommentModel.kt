@@ -8,7 +8,7 @@ import java.util.*
 data class CommentModel(
         @Id var id: UUID?,
         var content: String,
-        var user: String?,
+        var user: String,
         var issue: String,
         var creation: String
 )

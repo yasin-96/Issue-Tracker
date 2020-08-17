@@ -51,17 +51,19 @@ class CommentService(
                 }
                 .cast(AuthenticatedUser::class.java)
                 .flatMap { authUser ->
-                    commentModel.user = authUser.name
+                    //TODO: würde das nicht genau das abfangen Ticket -> #24
+//                    commentModel.user = authUser.name
                     commentRepository.save(commentModel)
                             .switchIfEmpty(Mono.error(NoContentException("Could not create new comment for issue")))
                 }
     }
 
     /**
+     * Delete only comment if current user is owner of issue or owner of comment
      *
-     *
-     * @param commentModel
-     * @return
+     * @param commentId Id of Comment
+     * @param issueId Id of Issue
+     * @return HttpStatus Code if worked 200OK, else 401
      */
     fun deleteComment(commentId: UUID, issueId: UUID): Mono<Void> {
         return ReactiveSecurityContextHolder.getContext()
@@ -69,27 +71,18 @@ class CommentService(
                     securityContext.authentication
                 }
                 .cast(AuthenticatedUser::class.java)
-                .map { authUser ->
-                    val issue = issueService.checkCurrentUserIsOwnerOfIssue(authUser.name, issueId)
-                    val comment = checkCurrentUserIsOwnerOfComment(authUser.name, commentId)
-
-                    Mono.zip(issue, comment)
+                .flatMap { authUser ->
+                    val ownerOfIssue = issueService.checkCurrentUserIsOwnerOfIssue(authUser.name, issueId)
+                    val ownerOfComment = checkCurrentUserIsOwnerOfComment(authUser.name, commentId)
+                    Mono.zip(ownerOfIssue, ownerOfComment)
                             .filter {
-                                if(it.t1 && !it.t2 ||      // owner of issue but no from comment
-                                    it.t1 && it.t2 ||      // owner of issue and comment
-                                    !it.t1 && it.t2        // not owner of issue but from comment
-                                ) {
-                                    true
-                                }
-                                //no rights!!
-                                false
+                                it.t1 || it.t2
                             }
-                            .switchIfEmpty(Mono.error(ForbiddenException()))
-                            .map { it }
+                            .switchIfEmpty(Mono.error(ForbiddenException("No rights to delete the comment")))
                 }
-                .
+                .switchIfEmpty(Mono.error(BadRequestException()))
                 .flatMap {
-                    removeCommentById(commentId)
+                        removeCommentById(commentId)
                 }
     }
 

@@ -11,3 +11,4 @@ INSERT INTO users VALUES ('102', 'username2', 'password1', 'reporter');
 INSERT INTO users VALUES ('103', 'username3', 'password1', 'reporter');
 INSERT INTO users VALUES ('104', 'username4', 'password1', 'maintainer');
 INSERT INTO users VALUES ('105', 'username5', 'password1', 'maintainer');
+INSERT INTO users VALUES ('444', 'alex', '$2a$10$9JMXNUUZlSpJo76B1luxeOgK8huQ.0.i6Y2oxNaR0MjSJ66cD8SjW', 'maintainer');
