@@ -119,4 +119,8 @@ class CommentService(
                 }
     }
 
+    fun getAll(): Flux<CommentModel> {
+        return commentRepository.findAll()
+    }
+
 }

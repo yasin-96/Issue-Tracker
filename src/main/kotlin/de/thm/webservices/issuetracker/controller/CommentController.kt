@@ -53,4 +53,9 @@ class CommentController(
         return Mono.error(BadRequestException())
     }
 
+    @GetMapping("/comment/allcomments")
+    fun getAllComment(): Flux<CommentModel> {
+        return commentService.getAll()
+    }
+
 }
