@@ -4,6 +4,7 @@ import de.thm.webservices.issuetracker.exception.BadRequestException
 import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.IssueModel
+import de.thm.webservices.issuetracker.model.IssueViewModel
 import de.thm.webservices.issuetracker.service.IssueService
 import de.thm.webservices.issuetracker.util.checkImportantProps
 import de.thm.webservices.issuetracker.util.checkIssueModel
@@ -113,5 +114,14 @@ class IssueController(private val issueService: IssueService) {
     @GetMapping("/allIssues")
     fun allIssues() : Flux<IssueModel> {
         return issueService.getAllIssues()
+    }
+
+    @GetMapping("/issue/comment/{id}")
+    fun getIssueWithComments(@PathVariable id: UUID) : Mono<IssueViewModel> {
+        if (checkUUID(id)) {
+            return issueService.getIssueWithAllComments(id)
+
+        }
+        return Mono.error(NoContentException("Missing ID"))
     }
     }

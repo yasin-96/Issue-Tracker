@@ -17,13 +17,12 @@ class CommentController(
 ) {
 
     @GetMapping("/comments/issue/{id}")
-    fun getAllCommentFromIssueById(@PathVariable id: UUID?): Flux<CommentModel> {
+    fun getAllCommentsByIssueId(@PathVariable id: UUID?): Flux<CommentModel> {
 
         if (checkUUID(id)) {
             return commentService.getAllCommentByIssueId(id!!)
                     .switchIfEmpty(Mono.error(NoContentException("No comments found for this issue")))
         }
-
         return Flux.from(Mono.error(BadRequestException("Wrong id ")))
     }
 

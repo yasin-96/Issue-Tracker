@@ -2,6 +2,8 @@ package de.thm.webservices.issuetracker.service
 
 import de.thm.webservices.issuetracker.exception.*
 import de.thm.webservices.issuetracker.model.IssueModel
+import de.thm.webservices.issuetracker.model.IssueViewModel
+import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.repository.IssueRepository
 import de.thm.webservices.issuetracker.security.AuthenticatedUser
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
@@ -12,7 +14,10 @@ import java.util.*
 
 
 @Service
-class IssueService(private val issueRepository: IssueRepository) {
+class IssueService(
+        private val issueRepository: IssueRepository,
+        private val commentRepository: CommentRepository
+) {
 
     /**
      * Here the ID is checked again and if the validation has run through and
@@ -132,6 +137,17 @@ class IssueService(private val issueRepository: IssueRepository) {
                 .map {
                     var check = it.ownerId.toString() == currentUser
                     check
+                }
+    }
+
+    fun getIssueWithAllComments(issueId: UUID): Mono<IssueViewModel>{
+        val issue = issueRepository.findById(issueId)
+        val comments = commentRepository.findByIssueId(issueId).collectList()
+                .switchIfEmpty(Mono.error(NoContentException("Id in comment for issue was not correct")))
+
+        return Mono.zip(issue,comments)
+                .map {
+                    IssueViewModel(it.t1, it.t2)
                 }
     }
 }
