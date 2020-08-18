@@ -1,10 +1,13 @@
 package de.thm.webservices.issuetracker.service
 
 import de.thm.webservices.issuetracker.exception.ForbiddenException
+import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.model.UserViewModel
+import de.thm.webservices.issuetracker.repository.CommentRepository
+import de.thm.webservices.issuetracker.repository.IssueRepository
 import de.thm.webservices.issuetracker.repository.UserRepository
 import de.thm.webservices.issuetracker.security.SecurityContextRepository
 import org.springframework.stereotype.Service
@@ -17,9 +20,9 @@ import javax.naming.NotContextException
 @Service
 class UserService(
         private val userRepository: UserRepository,
-        private val commentService: CommentService,
+        private val commentRepository: CommentRepository,
         private val passwordEncoder: BCryptPasswordEncoder,
-        private val issueService: IssueService,
+        private val issueRepository: IssueRepository,
         private val securityContextRepository: SecurityContextRepository
 ) {
 
@@ -70,16 +73,21 @@ class UserService(
         return get(userId)
                 .switchIfEmpty(Mono.error(NotFoundException("User not exist")))
                 .flatMapMany {
-                    commentService.getAllCommentsByUserId(userId)
-                            .switchIfEmpty(Mono.error(NotFoundException("There are no comments availiable")))
+                    commentRepository.findAllByUserId(userId)
+                            .switchIfEmpty(Mono.error(NoContentException("There are no comments availiable")))
                 }
     }
 
     fun getAllDataFromUserId(userId: UUID): Mono<UserViewModel> {
 
-        val issueCreatedByUser = issueService.getByOwnerId(userId).collectList()
-        val commentsCreatedByUser = commentService.getAllCommentsByUserId(userId).collectList()
-        var ud = UserViewModel()
+        val issueCreatedByUser = issueRepository.findByOwnerId(userId)
+                .switchIfEmpty(Mono.error(NotFoundException()))
+                .collectList()
+
+        val commentsCreatedByUser = commentRepository.findAllByUserId(userId)
+                .switchIfEmpty(Mono.error(NoContentException("There are no comments availiable")))
+                .collectList()
+
         return Mono.zip(issueCreatedByUser, commentsCreatedByUser)
                 .switchIfEmpty(Mono.error(NotContextException()))
                 .map {

@@ -5,6 +5,7 @@ import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.repository.CommentRepository
+import de.thm.webservices.issuetracker.repository.IssueRepository
 import de.thm.webservices.issuetracker.security.AuthenticatedUser
 import de.thm.webservices.issuetracker.security.SecurityContextRepository
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
@@ -16,7 +17,7 @@ import java.util.*
 @Service
 class CommentService(
         private val commentRepository: CommentRepository,
-        private val issueService: IssueService,
+        private val issueRepository: IssueRepository,
         private val securityContextRepository: SecurityContextRepository
 ) {
 
@@ -67,7 +68,14 @@ class CommentService(
     fun deleteComment(commentId: UUID, issueId: UUID): Mono<Void> {
         return securityContextRepository.getAuthenticatedUser()
                 .flatMap { authUser ->
-                    val ownerOfIssue = issueService.checkCurrentUserIsOwnerOfIssue(authUser.name, issueId)
+//                    val ownerOfIssue = issueService.checkCurrentUserIsOwnerOfIssue(authUser.name, issueId)
+                    val ownerOfIssue = issueRepository
+                            .findById(issueId)
+                            .map {
+                                val check = if ( it.ownerId.toString() == authUser.name ) true else false
+                                check
+                            }
+
                     val ownerOfComment = checkCurrentUserIsOwnerOfComment(authUser.name, commentId)
                     Mono.zip(ownerOfIssue, ownerOfComment)
                             .filter {
