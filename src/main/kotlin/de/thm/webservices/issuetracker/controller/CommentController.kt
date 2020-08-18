@@ -30,18 +30,12 @@ class CommentController(
 
     @GetMapping("/user/comments/{userId}")
     fun getAllCommentsOfAnUser(@PathVariable userId : UUID?) : Flux<MutableList<CommentModel>> {
-        if(checkUUID(userId!!)) {
-            return commentService.getAllComments()
-                    .map {
-                        val comments : MutableList<CommentModel> = mutableListOf()
-                        if(it.id == userId){
-                            comments.add(it)
-                        }
-                        comments
-                    } .switchIfEmpty(Mono.error(NotFoundException("There are no comments availiable")))
+        if (checkUUID(userId!!)) {
+            return commentService.getCommentsFromUser(userId)
         }
         return Flux.from(Mono.error(NotFoundException("That user id is not existing")))
     }
+
 
 
     @PostMapping("/comment")

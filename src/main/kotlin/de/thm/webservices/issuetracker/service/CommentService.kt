@@ -23,14 +23,25 @@ class CommentService(private val commentRepository: CommentRepository) {
      * @param commentModel comment to create
      * @return
      */
-    fun post(commentModel: CommentModel): Mono<CommentModel>{
+    fun post(commentModel: CommentModel): Mono<CommentModel> {
         return commentRepository.save(commentModel)
                 .switchIfEmpty(Mono.error(NoContentException("Could not create new comment for issue")))
     }
 
-    fun getAllComments() : Flux<CommentModel> {
+    fun getAllComments(): Flux<CommentModel> {
         return commentRepository.findAll()
                 .switchIfEmpty(Mono.error(NotFoundException("There are no comments.")))
     }
 
+    fun getCommentsFromUser(userId: UUID): Flux<MutableList<CommentModel>> {
+        return getAllComments().map {
+            val comments: MutableList<CommentModel> = mutableListOf()
+            if (it.id == userId) {
+                comments.add(it)
+            }
+            comments
+        }.switchIfEmpty(Mono.error(NotFoundException("There are no comments availiable")))
+    }
+
 }
+

@@ -11,14 +11,14 @@ import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
-import java.util.*
+
 
 @SpringBootApplication
 class IssuetrackerApplication {
 
 	companion object {
-		final var topicExchangeName:String = "spring-boot-exchange"
-		final var queueName : String = "spring-boot"
+		var topicExchangeName:String = "spring-boot-exchange"
+		var queueName : String = "spring-boot"
 	}
 
 	@Bean
@@ -40,7 +40,7 @@ class IssuetrackerApplication {
 	fun container(connectionFactory:ConnectionFactory,
 				  listenerAdapter: MessageListenerAdapter) : SimpleMessageListenerContainer {
 
-		var container : SimpleMessageListenerContainer = SimpleMessageListenerContainer()
+		val container  = SimpleMessageListenerContainer()
 		container.connectionFactory = connectionFactory
 		container.setQueueNames(queueName)
 		container.setMessageListener(listenerAdapter)
