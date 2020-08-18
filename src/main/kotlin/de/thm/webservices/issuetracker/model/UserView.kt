@@ -1,6 +1,6 @@
 package de.thm.webservices.issuetracker.model
 
 data class UserView (
-    var issues: MutableList<IssueModel> = mutableListOf(),
-    var comments: MutableList<CommentModel> = mutableListOf()
+    val issues: MutableList<IssueModel> = mutableListOf(),
+    val comments: MutableList<CommentModel> = mutableListOf()
 )
