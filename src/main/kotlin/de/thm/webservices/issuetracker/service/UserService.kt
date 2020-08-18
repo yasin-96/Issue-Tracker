@@ -3,6 +3,7 @@ package de.thm.webservices.issuetracker.service
 import de.thm.webservices.issuetracker.exception.ForbiddenException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
+import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.model.UserView
 import de.thm.webservices.issuetracker.repository.UserRepository
@@ -77,17 +78,15 @@ class UserService(
                 }
     }
 
-    fun getAllDataFromUserId(userId: UUID): Flux<UserView> {
+    fun getAllDataFromUserId(userId: UUID): Mono<UserView> {
 
-        val issueCreatedByUser = issueService.getByOwnerId(userId)
-        val commentsCreatedByUser = commentService.getAllCommentsByUserId(userId)
+        val issueCreatedByUser = issueService.getByOwnerId(userId).collectList()
+        val commentsCreatedByUser = commentService.getAllCommentsByUserId(userId).collectList()
         var ud = UserView()
-        return Flux.zip(issueCreatedByUser, commentsCreatedByUser)
+        return Mono.zip(issueCreatedByUser, commentsCreatedByUser)
                 .switchIfEmpty(Mono.error(NotContextException()))
-                .map{
-                    ud.issues.add(it.t1)
-                    ud.comments.add(it.t2)
-                    ud
+                .map {
+                    UserView(it.t1, it.t2)
                 }
     }
 }

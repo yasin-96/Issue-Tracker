@@ -84,11 +84,11 @@ class UserController(
 
 
     @GetMapping("/_view/userdata/{id}")
-    fun getUserData(@PathVariable id: UUID?): Flux<UserView> {
+    fun getUserData(@PathVariable id: UUID?): Mono<UserView> {
         if(checkUUID(id)){
             return userService.getAllDataFromUserId(id!!)
         }
-        return Flux.from(Mono.error(BadRequestException()))
+        return Mono.error(BadRequestException())
     }
 
 
