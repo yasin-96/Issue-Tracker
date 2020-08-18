@@ -5,6 +5,7 @@ import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.model.UserModel
+import de.thm.webservices.issuetracker.model.UserView
 import de.thm.webservices.issuetracker.service.CommentService
 import de.thm.webservices.issuetracker.service.UserService
 import de.thm.webservices.issuetracker.util.checkUUID
@@ -80,4 +81,15 @@ class UserController(
         }
         return Flux.from(Mono.error(NotFoundException("That user id is not existing")))
     }
+
+
+    @GetMapping("/_view/userdata/{id}")
+    fun getUserData(@PathVariable id: UUID?): Flux<UserView> {
+        if(checkUUID(id)){
+            return userService.getAllDataFromUserId(id!!)
+        }
+        return Flux.from(Mono.error(BadRequestException()))
+    }
+
+
 }
