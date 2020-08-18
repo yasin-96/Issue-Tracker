@@ -4,6 +4,7 @@ import de.thm.webservices.issuetracker.exception.*
 import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.repository.IssueRepository
 import de.thm.webservices.issuetracker.security.AuthenticatedUser
+import de.thm.webservices.issuetracker.security.SecurityContextRepository
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
@@ -12,7 +13,10 @@ import java.util.*
 
 
 @Service
-class IssueService(private val issueRepository: IssueRepository) {
+class IssueService(
+        private val issueRepository: IssueRepository,
+        private val securityContextRepository: SecurityContextRepository
+) {
 
     /**
      * Here the ID is checked again and if the validation has run through and
@@ -40,11 +44,7 @@ class IssueService(private val issueRepository: IssueRepository) {
      * @return if it works then returns the id, else null
      */
     fun addNewIssue(newIssueModel: IssueModel): Mono<UUID?> {
-        return ReactiveSecurityContextHolder.getContext()
-                .map { securityContext ->
-                    securityContext.authentication
-                }
-                .cast(AuthenticatedUser::class.java)
+        return securityContextRepository.getAuthenticatedUser()
                 .filter { authenticatedUser ->
                     authenticatedUser.name == newIssueModel.ownerId.toString()
                 }
@@ -57,11 +57,7 @@ class IssueService(private val issueRepository: IssueRepository) {
     }
 
     fun deleteIssue(issue:IssueModel) : Mono<Void> {
-        return ReactiveSecurityContextHolder.getContext()
-                .map { securityContext ->
-                    securityContext.authentication
-                }
-                .cast(AuthenticatedUser::class.java)
+        return securityContextRepository.getAuthenticatedUser()
                 .filter { authenticatedUser ->
                     authenticatedUser.name == issue.ownerId.toString()
                 }

@@ -6,6 +6,7 @@ import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.security.AuthenticatedUser
+import de.thm.webservices.issuetracker.security.SecurityContextRepository
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
@@ -15,7 +16,8 @@ import java.util.*
 @Service
 class CommentService(
         private val commentRepository: CommentRepository,
-        private val issueService: IssueService
+        private val issueService: IssueService,
+        private val securityContextRepository: SecurityContextRepository
 ) {
 
     /**
@@ -48,11 +50,7 @@ class CommentService(
      * @return
      */
     fun post(commentModel: CommentModel): Mono<CommentModel> {
-        return ReactiveSecurityContextHolder.getContext()
-                .map { securityContext ->
-                    securityContext.authentication
-                }
-                .cast(AuthenticatedUser::class.java)
+        return securityContextRepository.getAuthenticatedUser()
                 .flatMap { authUser ->
                     commentRepository.save(commentModel)
                             .switchIfEmpty(Mono.error(NoContentException("Could not create new comment for issue")))
@@ -67,11 +65,7 @@ class CommentService(
      * @return HttpStatus Code if worked 200OK, else 401
      */
     fun deleteComment(commentId: UUID, issueId: UUID): Mono<Void> {
-        return ReactiveSecurityContextHolder.getContext()
-                .map { securityContext ->
-                    securityContext.authentication
-                }
-                .cast(AuthenticatedUser::class.java)
+        return securityContextRepository.getAuthenticatedUser()
                 .flatMap { authUser ->
                     val ownerOfIssue = issueService.checkCurrentUserIsOwnerOfIssue(authUser.name, issueId)
                     val ownerOfComment = checkCurrentUserIsOwnerOfComment(authUser.name, commentId)

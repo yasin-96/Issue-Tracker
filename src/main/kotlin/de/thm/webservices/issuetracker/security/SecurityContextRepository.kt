@@ -5,6 +5,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.security.authentication.AnonymousAuthenticationToken
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextImpl
 import org.springframework.security.web.server.context.ServerSecurityContextRepository
@@ -47,5 +48,13 @@ class SecurityContextRepository(
                 .map { authentication: Authentication ->
                     SecurityContextImpl(authentication)
                 }
+    }
+
+    fun getAuthenticatedUser(): Mono<AuthenticatedUser> {
+        return ReactiveSecurityContextHolder.getContext()
+                .map { securityContext ->
+                    securityContext.authentication
+                }
+                .cast(AuthenticatedUser::class.java)
     }
 }
