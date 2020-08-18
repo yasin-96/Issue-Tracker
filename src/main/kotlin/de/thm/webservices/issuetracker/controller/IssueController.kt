@@ -5,17 +5,14 @@ import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.service.IssueService
-import de.thm.webservices.issuetracker.service.UserService
 import de.thm.webservices.issuetracker.util.checkImportantProps
 import de.thm.webservices.issuetracker.util.checkIssueModel
 import de.thm.webservices.issuetracker.util.checkPatchObject
 import de.thm.webservices.issuetracker.util.checkUUID
-import org.springframework.data.relational.core.sql.Not
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 @RestController("IssueController")
@@ -111,6 +108,7 @@ class IssueController(private val issueService: IssueService) {
                     issues
                 }
     }
+
 
     @GetMapping("/allIssues")
     fun allIssues() : Flux<IssueModel> {

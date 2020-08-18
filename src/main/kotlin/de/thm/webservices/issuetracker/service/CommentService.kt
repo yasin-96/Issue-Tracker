@@ -18,7 +18,8 @@ import java.util.*
 class CommentService(
         private val commentRepository: CommentRepository,
         private val issueRepository: IssueRepository,
-        private val securityContextRepository: SecurityContextRepository
+        private val securityContextRepository: SecurityContextRepository,
+        private  val taggingService: TaggingService
 ) {
 
     /**
@@ -51,6 +52,9 @@ class CommentService(
      * @return
      */
     fun post(commentModel: CommentModel): Mono<CommentModel> {
+
+        taggingService.tagging(commentModel.content)
+
         return securityContextRepository.getAuthenticatedUser()
                 .flatMap { authUser ->
                     commentRepository.save(commentModel)
