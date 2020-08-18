@@ -30,9 +30,8 @@ class CommentService(
      * @param issueId
      * @return
      */
-    fun getAllCommentById(issueId: UUID): Flux<CommentModel> {
-        //TODO stimmt nicht muss noch korrigiert werden
-        return commentRepository.findAll()
+    fun getAllCommentByIssueId(issueId: UUID): Flux<CommentModel> {
+        return commentRepository.findByIssueId(issueId)
                 .switchIfEmpty(Mono.error(NoContentException("Id in comment for issue was not correct")))
     }
 

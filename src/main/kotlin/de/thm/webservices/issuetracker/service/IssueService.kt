@@ -122,7 +122,7 @@ class IssueService(private val issueRepository: IssueRepository) {
 
     }
 
-    fun getByOwner(ownerId: String): Flux<IssueModel> {
+    fun getByOwner(ownerId: UUID): Flux<IssueModel> {
         return issueRepository.findByOwnerId(ownerId)
     }
 
