@@ -4,6 +4,7 @@ import de.thm.webservices.issuetracker.exception.*
 import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
+import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.security.AuthenticatedUser
 import de.thm.webservices.issuetracker.security.SecurityContextRepository
@@ -17,7 +18,8 @@ import java.util.*
 class CommentService(
         private val commentRepository: CommentRepository,
         private val issueService: IssueService,
-        private val securityContextRepository: SecurityContextRepository
+        private val securityContextRepository: SecurityContextRepository,
+        private val userService: UserService
 ) {
 
     /**
@@ -50,6 +52,8 @@ class CommentService(
      * @return
      */
     fun post(commentModel: CommentModel): Mono<CommentModel> {
+      //  taggingService.tagging(commentModel.content)
+
         return securityContextRepository.getAuthenticatedUser()
                 .flatMap { authUser ->
                     commentRepository.save(commentModel)

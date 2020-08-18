@@ -4,7 +4,6 @@ import de.thm.webservices.issuetracker.exception.BadRequestException
 import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.IssueModel
-import de.thm.webservices.issuetracker.service.CommentService
 import de.thm.webservices.issuetracker.service.IssueService
 import de.thm.webservices.issuetracker.util.checkImportantProps
 import de.thm.webservices.issuetracker.util.checkIssueModel
@@ -18,8 +17,7 @@ import java.util.*
 
 @RestController("IssueController")
 //@RequestMapping("/api/")
-class IssueController(private val issueService: IssueService,
-                      private val commentService: CommentService) {
+class IssueController(private val issueService: IssueService) {
 
 
     /**

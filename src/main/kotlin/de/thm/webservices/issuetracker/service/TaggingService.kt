@@ -4,11 +4,17 @@ import de.thm.webservices.issuetracker.model.UserModel
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
+
 @Service
 class TaggingService(private val userService: UserService) {
 
-    fun tagging(words:List<String>) : Mono<MutableList<UserModel>>{
-        val matches : MutableList<UserModel> = mutableListOf()
+    fun tagging(text:String) : Mono<MutableSet<UserModel>>{
+        var words = text.split( " ")
+                .filter {
+                    it.startsWith("@")
+                }
+
+        val matches : MutableSet<UserModel> = mutableSetOf()
 
         return userService.getAll().collectList()
                 .map {

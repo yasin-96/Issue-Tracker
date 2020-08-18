@@ -16,43 +16,9 @@ import org.springframework.context.annotation.Bean
 @SpringBootApplication
 class IssuetrackerApplication {
 
-	companion object {
-		var topicExchangeName:String = "spring-boot-exchange"
-		var queueName : String = "spring-boot"
-	}
 
-	@Bean
-	fun queue() : Queue {
-		return Queue(queueName,false)
-	}
+}
 
-	@Bean
-	fun exchange():TopicExchange {
-		return TopicExchange(topicExchangeName)
-	}
-
-	@Bean
-	fun binding(queue: Queue) : Binding {
-		return BindingBuilder.bind(queue).to(exchange()).with("foo.bar.#")
-	}
-
-	@Bean
-	fun container(connectionFactory:ConnectionFactory,
-				  listenerAdapter: MessageListenerAdapter) : SimpleMessageListenerContainer {
-
-		val container  = SimpleMessageListenerContainer()
-		container.connectionFactory = connectionFactory
-		container.setQueueNames(queueName)
-		container.setMessageListener(listenerAdapter)
-		return container
-	}
-
-	@Bean
-	fun listenerAdapter(receiver:Receiver) : MessageListenerAdapter {
-		return MessageListenerAdapter(receiver,"receiveMessage")
-	}
-
-	fun main(args: Array<String>) {
-		runApplication<IssuetrackerApplication>(*args)
-	}
+fun main(args: Array<String>) {
+	runApplication<IssuetrackerApplication>(*args)
 }
