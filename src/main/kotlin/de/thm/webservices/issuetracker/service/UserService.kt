@@ -3,13 +3,10 @@ package de.thm.webservices.issuetracker.service
 import de.thm.webservices.issuetracker.exception.ForbiddenException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
-import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.model.UserModel
-import de.thm.webservices.issuetracker.model.UserView
+import de.thm.webservices.issuetracker.model.UserViewModel
 import de.thm.webservices.issuetracker.repository.UserRepository
-import de.thm.webservices.issuetracker.security.AuthenticatedUser
 import de.thm.webservices.issuetracker.security.SecurityContextRepository
-import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -78,15 +75,15 @@ class UserService(
                 }
     }
 
-    fun getAllDataFromUserId(userId: UUID): Mono<UserView> {
+    fun getAllDataFromUserId(userId: UUID): Mono<UserViewModel> {
 
         val issueCreatedByUser = issueService.getByOwnerId(userId).collectList()
         val commentsCreatedByUser = commentService.getAllCommentsByUserId(userId).collectList()
-        var ud = UserView()
+        var ud = UserViewModel()
         return Mono.zip(issueCreatedByUser, commentsCreatedByUser)
                 .switchIfEmpty(Mono.error(NotContextException()))
                 .map {
-                    UserView(it.t1, it.t2)
+                    UserViewModel(it.t1, it.t2)
                 }
     }
 }
