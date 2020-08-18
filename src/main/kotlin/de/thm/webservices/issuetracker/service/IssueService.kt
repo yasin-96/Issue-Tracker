@@ -56,14 +56,18 @@ class IssueService(
                 }
     }
 
-    fun deleteIssue(issue:IssueModel) : Mono<Void> {
+    fun deleteIssue(issueId: UUID) : Mono<Void> {
         return securityContextRepository.getAuthenticatedUser()
-                .filter { authenticatedUser ->
-                    authenticatedUser.name == issue.ownerId.toString()
+                .flatMap { authenticatedUser ->
+                    getIssueById(issueId)
+                            .switchIfEmpty(Mono.error(NotFoundException("")))
+                            .map {
+                                authenticatedUser.name == it.ownerId.toString()
+                            }
                 }
                 .switchIfEmpty(Mono.error(ForbiddenException("You are not the owner of the issue")))
                 .flatMap {
-                    issueRepository.delete(issue)
+                    issueRepository.deleteById(issueId)
                             .switchIfEmpty(Mono.error(NoContentException("Could not delete issue")))
                 }
     }
@@ -135,8 +139,9 @@ class IssueService(
     }
 
 
-    fun getByOwner(ownerId: String): Flux<IssueModel> {
+    fun getByOwnerId(ownerId: UUID): Flux<IssueModel> {
         return issueRepository.findByOwnerId(ownerId)
+                .switchIfEmpty(Mono.error(NotFoundException()))
     }
 
     /**

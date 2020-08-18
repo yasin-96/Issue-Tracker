@@ -3,7 +3,9 @@ package de.thm.webservices.issuetracker.service
 import de.thm.webservices.issuetracker.exception.ForbiddenException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
+import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.model.UserModel
+import de.thm.webservices.issuetracker.model.UserView
 import de.thm.webservices.issuetracker.repository.UserRepository
 import de.thm.webservices.issuetracker.security.AuthenticatedUser
 import de.thm.webservices.issuetracker.security.SecurityContextRepository
@@ -13,12 +15,14 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
+import javax.naming.NotContextException
 
 @Service
 class UserService(
         private val userRepository: UserRepository,
         private val commentService: CommentService,
         private val passwordEncoder: BCryptPasswordEncoder,
+        private val issueService: IssueService,
         private val securityContextRepository: SecurityContextRepository
 ) {
 
@@ -71,6 +75,18 @@ class UserService(
                 .flatMapMany {
                     commentService.getAllCommentsByUserId(userId)
                             .switchIfEmpty(Mono.error(NotFoundException("There are no comments availiable")))
+                }
+    }
+
+    fun getAllDataFromUserId(userId: UUID): Mono<UserView> {
+
+        val issueCreatedByUser = issueService.getByOwnerId(userId).collectList()
+        val commentsCreatedByUser = commentService.getAllCommentsByUserId(userId).collectList()
+        var ud = UserView()
+        return Mono.zip(issueCreatedByUser, commentsCreatedByUser)
+                .switchIfEmpty(Mono.error(NotContextException()))
+                .map {
+                    UserView(it.t1, it.t2)
                 }
     }
 }

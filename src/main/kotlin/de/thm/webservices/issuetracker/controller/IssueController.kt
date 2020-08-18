@@ -77,10 +77,7 @@ class IssueController(private val issueService: IssueService,
     @DeleteMapping("/issue/{id}")
     fun deleteIssue(@PathVariable id: UUID?): Mono<Void> {
         if (checkUUID(id!!)) {
-            return issueService.getIssueById(id).flatMap {
-                issueService.deleteIssue(it)
-            }
-
+                return issueService.deleteIssue(id)
         }
         return Mono.error(NotFoundException("The entered issue id is not existing"))
     }
