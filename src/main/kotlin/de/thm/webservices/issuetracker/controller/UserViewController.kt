@@ -15,9 +15,14 @@ class UserViewController(
         private val userService: UserService
 ) {
 
+    /**
+     * TODO
+     * @param id UUID?
+     * @return Mono<UserViewModel>
+     */
     @GetMapping("/_view/userdata/{id}")
     fun getUserData(@PathVariable id: UUID?): Mono<UserViewModel> {
-        if(checkUUID(id)){
+        if (checkUUID(id)) {
             return userService.getAllDataFromUserId(id!!)
         }
         return Mono.error(BadRequestException())

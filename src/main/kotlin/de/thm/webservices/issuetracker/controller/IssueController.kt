@@ -4,6 +4,7 @@ import de.thm.webservices.issuetracker.exception.BadRequestException
 import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.IssueModel
+import de.thm.webservices.issuetracker.model.IssueViewModel
 import de.thm.webservices.issuetracker.service.IssueService
 import de.thm.webservices.issuetracker.service.UserService
 import de.thm.webservices.issuetracker.util.checkImportantProps
@@ -32,7 +33,7 @@ class IssueController(private val issueService: IssueService) {
     @PostMapping("/issue")
     fun addNewIssue(@RequestBody newIssue: IssueModel?): Mono<UUID?> {
 
-        if (checkImportantProps(newIssue) ) {
+        if (checkImportantProps(newIssue)) {
             return issueService.addNewIssue(newIssue!!)
                     .switchIfEmpty(Mono.error(NoContentException("Issue could not created :(")))
 
@@ -78,7 +79,7 @@ class IssueController(private val issueService: IssueService) {
     @DeleteMapping("/issue/{id}")
     fun deleteIssue(@PathVariable id: UUID?): Mono<Void> {
         if (checkUUID(id!!)) {
-                return issueService.deleteIssue(id)
+            return issueService.deleteIssue(id)
         }
         return Mono.error(NotFoundException("The entered issue id is not existing"))
     }
@@ -100,20 +101,43 @@ class IssueController(private val issueService: IssueService) {
         return Mono.error(BadRequestException("Wrong data was send. Id was not an UUIDV4 or path object are not valid"))
     }
 
+    /**
+     * TODO
+     * @param id UUID
+     * @return Flux<MutableList<IssueModel>>
+     */
     @GetMapping("/issues/{id}")
-    fun issuesOfAnUser(@PathVariable id: UUID) : Flux<MutableList<IssueModel>> {
+    fun issuesOfAnUser(@PathVariable id: UUID): Flux<MutableList<IssueModel>> {
         return issueService.getAllIssues()
                 .map {
-                    var issues: MutableList<IssueModel> = mutableListOf()
-                    if(it.ownerId == id){
+                    val issues: MutableList<IssueModel> = mutableListOf()
+                    if (it.ownerId == id) {
                         issues.add(it)
                     }
                     issues
                 }
     }
 
+    /**
+     * TODO
+     * @return Flux<IssueModel>
+     */
     @GetMapping("/allIssues")
-    fun allIssues() : Flux<IssueModel> {
+    fun allIssues(): Flux<IssueModel> {
         return issueService.getAllIssues()
+    }
+
+    /**
+     * TODO
+     * @param id UUID
+     * @return Mono<IssueViewModel>
+     */
+    @GetMapping("/issue/comment/{id}")
+    fun getIssueWithComments(@PathVariable id: UUID): Mono<IssueViewModel> {
+        if (checkUUID(id)) {
+            return issueService.getIssueWithAllComments(id)
+
+        }
+        return Mono.error(NoContentException("Missing ID"))
     }
 }

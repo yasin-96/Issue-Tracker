@@ -26,7 +26,11 @@ class UserService(
         private val securityContextRepository: SecurityContextRepository
 ) {
 
-    fun getCurrentUserRole() : Mono<String> {
+    /**
+     * TODO
+     * @return Mono<String>
+     */
+    fun getCurrentUserRole(): Mono<String> {
         return securityContextRepository.getAuthenticatedUser()
                 .filter { authenticatedUser ->
                     authenticatedUser.authorities.all {
@@ -41,23 +45,47 @@ class UserService(
     }
 
 
+    /**
+     * TODO
+     * @param id UUID
+     * @return Mono<UserModel>
+     */
     fun get(id: UUID): Mono<UserModel> {
         return userRepository.findById(id)
     }
 
+    /**
+     * TODO
+     * @return Flux<UserModel>
+     */
     fun getAll(): Flux<UserModel> {
         return userRepository.findAll()
     }
 
+    /**
+     * TODO
+     * @param username String
+     * @return Mono<UserModel>
+     */
     fun getByUsername(username: String): Mono<UserModel> {
         return userRepository.findByUsername(username)
     }
 
+    /**
+     * TODO
+     * @param userModel UserModel
+     * @return Mono<UserModel>
+     */
     fun post(userModel: UserModel): Mono<UserModel> {
         userModel.password = passwordEncoder.encode(userModel.password)
         return userRepository.save(userModel)
     }
 
+    /**
+     * TODO
+     * @param id UUID
+     * @return Mono<Void>
+     */
     fun delete(id: UUID): Mono<Void> {
         return securityContextRepository.getAuthenticatedUser()
                 .filter { authenticatedUser ->
@@ -69,7 +97,12 @@ class UserService(
                 }
     }
 
-    fun getAllCommentsByUserId(userId: UUID) : Flux<CommentModel> {
+    /**
+     * TODO
+     * @param userId UUID
+     * @return Flux<CommentModel>
+     */
+    fun getAllCommentsByUserId(userId: UUID): Flux<CommentModel> {
         return get(userId)
                 .switchIfEmpty(Mono.error(NotFoundException("User not exist")))
                 .flatMapMany {
@@ -78,6 +111,11 @@ class UserService(
                 }
     }
 
+    /**
+     * TODO
+     * @param userId UUID
+     * @return Mono<UserViewModel>
+     */
     fun getAllDataFromUserId(userId: UUID): Mono<UserViewModel> {
 
         val issueCreatedByUser = issueRepository.findByOwnerId(userId)

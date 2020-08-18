@@ -13,8 +13,10 @@ INSERT INTO issues VALUES ('003', '3title', '00000000-0000-0000-0000-00000000010
 INSERT INTO issues VALUES ('004', '4title', '00000000-0000-0000-0000-000000000102', '2020.12.01');
 INSERT INTO issues VALUES ('005', '5title', '00000000-0000-0000-0000-000000000102', '2020.12.01');
 
-INSERT INTO comments VALUES ('201', '1comment', '102', '001', '2020.12.01' );
-INSERT INTO comments VALUES ('202', '1comment', '102', '001', '2020.12.01' );
-INSERT INTO comments VALUES ('203', '1comment', '102', '001', '2020.12.01' );
-INSERT INTO comments VALUES ('204', '1comment', '102', '001', '2020.12.01' );
-INSERT INTO comments VALUES ('205', '1comment', '102', '001', '2020.12.01' );
+INSERT INTO comments VALUES ('201', '1. comment', '11111111-1111-1111-1111-111111111111', '001', '2020.12.01' );
+INSERT INTO comments VALUES ('202', '2. comment', '11111111-1111-1111-1111-111111111111', '002', '2020.12.01' );
+INSERT INTO comments VALUES ('203', '3. comment', '102', '002', '2020.12.01' );
+INSERT INTO comments VALUES ('204', '4. comment', '102', '001', '2020.12.01' );
+INSERT INTO comments VALUES ('205', '5. comment', '102', '003', '2020.12.01' );
+
+

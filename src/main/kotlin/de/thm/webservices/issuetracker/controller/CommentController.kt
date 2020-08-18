@@ -23,13 +23,12 @@ class CommentController(
      * @return
      */
     @GetMapping("/comments/issue/{id}")
-    fun getAllCommentFromIssueById(@PathVariable id: UUID?): Flux<CommentModel> {
+    fun getAllCommentsByIssueId(@PathVariable id: UUID?): Flux<CommentModel> {
 
         if (checkUUID(id)) {
-            return commentService.getAllCommentById(id!!)
+            return commentService.getAllCommentByIssueId(id!!)
                     .switchIfEmpty(Mono.error(NoContentException("No comments found for this issue")))
         }
-
         return Flux.from(Mono.error(BadRequestException("Wrong id ")))
     }
 
@@ -67,12 +66,16 @@ class CommentController(
     //TODO löschen
     @GetMapping("/comment/{id}")
     fun getOneComment(@PathVariable id: UUID?): Mono<CommentModel> {
-        if(checkUUID(id)){
+        if (checkUUID(id)) {
             return commentService.getCommentById(id!!)
         }
         return Mono.error(BadRequestException())
     }
 
+    /**
+     * TODO
+     * @return Flux<CommentModel>
+     */
     @GetMapping("/comment/allcomments")
     fun getAllComment(): Flux<CommentModel> {
         return commentService.getAll()

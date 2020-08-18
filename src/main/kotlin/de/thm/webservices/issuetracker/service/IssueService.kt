@@ -2,10 +2,10 @@ package de.thm.webservices.issuetracker.service
 
 import de.thm.webservices.issuetracker.exception.*
 import de.thm.webservices.issuetracker.model.IssueModel
+import de.thm.webservices.issuetracker.model.IssueViewModel
+import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.repository.IssueRepository
-import de.thm.webservices.issuetracker.security.AuthenticatedUser
 import de.thm.webservices.issuetracker.security.SecurityContextRepository
-import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -15,6 +15,7 @@ import java.util.*
 @Service
 class IssueService(
         private val issueRepository: IssueRepository,
+        private val commentRepository: CommentRepository,
         private val securityContextRepository: SecurityContextRepository
 ) {
 
@@ -31,7 +32,11 @@ class IssueService(
                 .switchIfEmpty(Mono.error(NotFoundException("Id not found")))
     }
 
-    fun getAllIssues() : Flux<IssueModel>{
+    /**
+     * TODO
+     * @return Flux<IssueModel>
+     */
+    fun getAllIssues(): Flux<IssueModel> {
         return issueRepository.findAll()
     }
 
@@ -52,11 +57,16 @@ class IssueService(
                 .flatMap {
                     issueRepository.save(newIssueModel)
                             .switchIfEmpty(Mono.error(NoContentException("Could not create new issue")))
-                            .map{ it.id!! }
+                            .map { it.id!! }
                 }
     }
 
-    fun deleteIssue(issueId: UUID) : Mono<Void> {
+    /**
+     * TODO
+     * @param issueId UUID
+     * @return Mono<Void>
+     */
+    fun deleteIssue(issueId: UUID): Mono<Void> {
         return securityContextRepository.getAuthenticatedUser()
                 .flatMap { authenticatedUser ->
                     getIssueById(issueId)
@@ -132,13 +142,18 @@ class IssueService(
                         }
                     }
 
-                    issueRepository.save(IssueModel(it.id, it.title, it.ownerId,it.deadline))
+                    issueRepository.save(IssueModel(it.id, it.title, it.ownerId, it.deadline))
                             .switchIfEmpty(Mono.error(NotModifiedException("Could not update prop from Issue ")))
                 }
 
     }
 
 
+    /**
+     * TODO
+     * @param ownerId UUID
+     * @return Flux<IssueModel>
+     */
     fun getByOwnerId(ownerId: UUID): Flux<IssueModel> {
         return issueRepository.findByOwnerId(ownerId)
                 .switchIfEmpty(Mono.error(NotFoundException()))
@@ -151,12 +166,28 @@ class IssueService(
      * @param issueId
      * @return
      */
-    fun checkCurrentUserIsOwnerOfIssue(currentUser: String, issueId: UUID): Mono<Boolean>{
+    fun checkCurrentUserIsOwnerOfIssue(currentUser: String, issueId: UUID): Mono<Boolean> {
         return issueRepository.findById(issueId)
                 .switchIfEmpty(Mono.error(NotFoundException("Issue id was not found")))
                 .map {
-                    var check = it.ownerId.toString() == currentUser
+                    val check = it.ownerId.toString() == currentUser
                     check
+                }
+    }
+
+    /**
+     * TODO
+     * @param issueId UUID
+     * @return Mono<IssueViewModel>
+     */
+    fun getIssueWithAllComments(issueId: UUID): Mono<IssueViewModel> {
+        val issue = issueRepository.findById(issueId)
+        val comments = commentRepository.findAllByIssueId(issueId).collectList()
+                .switchIfEmpty(Mono.error(NoContentException("Id in comment for issue was not correct")))
+
+        return Mono.zip(issue, comments)
+                .map {
+                    IssueViewModel(it.t1, it.t2)
                 }
     }
 }
