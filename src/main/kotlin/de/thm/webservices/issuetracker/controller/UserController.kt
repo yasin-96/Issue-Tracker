@@ -81,15 +81,4 @@ class UserController(
         }
         return Flux.from(Mono.error(NotFoundException("That user id is not existing")))
     }
-
-
-    @GetMapping("/_view/userdata/{id}")
-    fun getUserData(@PathVariable id: UUID?): Mono<UserView> {
-        if(checkUUID(id)){
-            return userService.getAllDataFromUserId(id!!)
-        }
-        return Mono.error(BadRequestException())
-    }
-
-
 }
