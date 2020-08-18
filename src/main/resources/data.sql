@@ -7,7 +7,7 @@ INSERT INTO users VALUES ('104', 'username4', 'password1', 'maintainer');
 INSERT INTO users VALUES ('105', 'username5', 'password1', 'maintainer');
 INSERT INTO users VALUES ('444', 'alex', '$2a$10$9JMXNUUZlSpJo76B1luxeOgK8huQ.0.i6Y2oxNaR0MjSJ66cD8SjW', 'maintainer');
 
-INSERT INTO issues VALUES ('001', '1title', '101', '2020.12.01');
+INSERT INTO issues VALUES ('001', '1title', '00000000-0000-0000-0000-000000000102', '2020.12.01');
 INSERT INTO issues VALUES ('002', '2title', '00000000-0000-0000-0000-000000000101', '2020.12.01');
 INSERT INTO issues VALUES ('003', '3title', '00000000-0000-0000-0000-000000000101', '2020.12.01');
 INSERT INTO issues VALUES ('004', '4title', '00000000-0000-0000-0000-000000000102', '2020.12.01');
