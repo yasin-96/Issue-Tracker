@@ -15,6 +15,7 @@ import java.util.*
 @Service
 class IssueService(
         private val issueRepository: IssueRepository,
+        private val taggingService: TaggingService,
         private val securityContextRepository: SecurityContextRepository
 ) {
 
@@ -44,6 +45,7 @@ class IssueService(
      * @return if it works then returns the id, else null
      */
     fun addNewIssue(newIssueModel: IssueModel): Mono<UUID?> {
+        taggingService.tagging(newIssueModel.title)
         return securityContextRepository.getAuthenticatedUser()
                 .filter { authenticatedUser ->
                     authenticatedUser.name == newIssueModel.ownerId.toString()

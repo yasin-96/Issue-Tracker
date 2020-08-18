@@ -53,10 +53,7 @@ class CommentService(
      */
     fun post(commentModel: CommentModel): Mono<CommentModel> {
 
-        taggingService.tagging(commentModel.content).map {
-            println(it)
-            it
-        }
+        taggingService.tagging(commentModel.content)
 
         return securityContextRepository.getAuthenticatedUser()
                 .flatMap { authUser ->
