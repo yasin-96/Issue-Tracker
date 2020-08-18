@@ -77,10 +77,7 @@ class IssueController(private val issueService: IssueService,
     @DeleteMapping("/issue/{id}")
     fun deleteIssue(@PathVariable id: UUID?): Mono<Void> {
         if (checkUUID(id!!)) {
-            return issueService.getIssueById(id).flatMap {
-                issueService.deleteIssue(it)
-            }
-
+                return issueService.deleteIssue(id)
         }
         return Mono.error(NotFoundException("The entered issue id is not existing"))
     }
@@ -107,7 +104,7 @@ class IssueController(private val issueService: IssueService,
         return issueService.getAllIssues()
                 .map {
                     var issues: MutableList<IssueModel> = mutableListOf()
-                    if(it.owner == id.toString()){
+                    if(it.ownerId == id){
                         issues.add(it)
                     }
                     issues
@@ -119,4 +116,4 @@ class IssueController(private val issueService: IssueService,
     fun allIssues() : Flux<IssueModel> {
         return issueService.getAllIssues()
     }
-    }
+}
