@@ -1,18 +1,15 @@
 package de.thm.webservices.issuetracker.service
 
 import de.thm.webservices.issuetracker.exception.*
+import de.thm.webservices.issuetracker.exception.NoContentException
+import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.security.AuthenticatedUser
-import org.springframework.data.util.CastUtils.cast
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toMono
-import reactor.kotlin.extra.bool.logicalAnd
-import reactor.kotlin.extra.bool.logicalOr
-import java.security.PrivateKey
 import java.util.*
 
 @Service
@@ -21,6 +18,12 @@ class CommentService(
         private val issueService: IssueService
 ) {
 
+    /**
+     * TODO
+     *
+     * @param commentId
+     * @return
+     */
     fun getCommentById(commentId: UUID): Mono<CommentModel> {
         return commentRepository.findById(commentId)
                 .switchIfEmpty(Mono.error(NotFoundException("Id not found")))
@@ -28,13 +31,13 @@ class CommentService(
 
 
     /**
-     * TODO
+     * Request all comments by issue id
      *
      * @param issueId
      * @return
      */
     fun getAllCommentById(issueId: UUID): Flux<CommentModel> {
-        return commentRepository.findAllByIssue(issueId)
+        return commentRepository.findAllByIssueId(issueId)
                 .switchIfEmpty(Mono.error(NoContentException("Id in comment for issue was not correct")))
     }
 
@@ -51,17 +54,17 @@ class CommentService(
                 }
                 .cast(AuthenticatedUser::class.java)
                 .flatMap { authUser ->
-                    commentModel.user = authUser.name
                     commentRepository.save(commentModel)
                             .switchIfEmpty(Mono.error(NoContentException("Could not create new comment for issue")))
                 }
     }
 
     /**
+     * Delete only comment if current user is owner of issue or owner of comment
      *
-     *
-     * @param commentModel
-     * @return
+     * @param commentId Id of Comment
+     * @param issueId Id of Issue
+     * @return HttpStatus Code if worked 200OK, else 401
      */
     fun deleteComment(commentId: UUID, issueId: UUID): Mono<Void> {
         return ReactiveSecurityContextHolder.getContext()
@@ -69,27 +72,18 @@ class CommentService(
                     securityContext.authentication
                 }
                 .cast(AuthenticatedUser::class.java)
-                .map { authUser ->
-                    val issue = issueService.checkCurrentUserIsOwnerOfIssue(authUser.name, issueId)
-                    val comment = checkCurrentUserIsOwnerOfComment(authUser.name, commentId)
-
-                    Mono.zip(issue, comment)
+                .flatMap { authUser ->
+                    val ownerOfIssue = issueService.checkCurrentUserIsOwnerOfIssue(authUser.name, issueId)
+                    val ownerOfComment = checkCurrentUserIsOwnerOfComment(authUser.name, commentId)
+                    Mono.zip(ownerOfIssue, ownerOfComment)
                             .filter {
-                                if(it.t1 && !it.t2 ||      // owner of issue but no from comment
-                                    it.t1 && it.t2 ||      // owner of issue and comment
-                                    !it.t1 && it.t2        // not owner of issue but from comment
-                                ) {
-                                    true
-                                }
-                                //no rights!!
-                                false
+                                it.t1 || it.t2
                             }
-                            .switchIfEmpty(Mono.error(ForbiddenException()))
-                            .map { it }
+                            .switchIfEmpty(Mono.error(ForbiddenException("No rights to delete the comment")))
                 }
-                .
+                .switchIfEmpty(Mono.error(BadRequestException()))
                 .flatMap {
-                    removeCommentById(commentId)
+                        removeCommentById(commentId)
                 }
     }
 
@@ -104,7 +98,7 @@ class CommentService(
         return commentRepository.findById(commentId)
                 .switchIfEmpty(Mono.error(NotFoundException("Issue id was not found")))
                 .map {
-                    var check = if (it.user == currentUser) true else false
+                    val check = if (it.userId.toString() == currentUser) true else false
                     check
                 }
     }
@@ -123,4 +117,13 @@ class CommentService(
                 }
     }
 
+
+    fun getAllCommentsByUserId(userId: UUID): Flux<CommentModel> {
+        return commentRepository.findAllByUserId(userId)
+                .switchIfEmpty(Mono.error(NoContentException("User has no comments written")))
+    }
+
+    fun getAll(): Flux<CommentModel> {
+        return commentRepository.findAll()
+    }
 }

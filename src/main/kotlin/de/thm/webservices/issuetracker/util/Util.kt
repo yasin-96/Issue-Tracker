@@ -53,19 +53,21 @@ fun checkUUID(uuidToCheck: String?): Boolean {
 fun checkIssueModel(issueModelToCheck: IssueModel?): Boolean {
 
     if (issueModelToCheck?.id?.toString().isNullOrEmpty()
-            || issueModelToCheck?.owner.isNullOrEmpty()
+            || issueModelToCheck?.ownerId.toString().isNullOrEmpty()
             || issueModelToCheck?.title.isNullOrEmpty()
             || issueModelToCheck?.deadline.isNullOrEmpty()
     ) {
         return false
     }
 
-    if (issueModelToCheck?.id.toString().isNotEmpty()
-            && issueModelToCheck?.owner!!.isNotEmpty()
-            && issueModelToCheck.title.isNotEmpty()
-            && issueModelToCheck.deadline.isNotEmpty()
-    ) {
-        return true
+    if (issueModelToCheck != null) {
+        if (issueModelToCheck?.id.toString().isNotEmpty()
+                && issueModelToCheck?.ownerId.toString()!!.isNotEmpty()
+                && issueModelToCheck.title.isNotEmpty()
+                && issueModelToCheck.deadline.isNotEmpty()
+        ) {
+            return true
+        }
     }
 
     return false
@@ -73,19 +75,21 @@ fun checkIssueModel(issueModelToCheck: IssueModel?): Boolean {
 
 fun checkImportantProps(issueModelToCheck: IssueModel?) : Boolean{
     if (issueModelToCheck?.id != null
-            || issueModelToCheck?.owner.isNullOrEmpty()
+            || issueModelToCheck?.ownerId.toString().isNullOrEmpty()
             || issueModelToCheck?.title.isNullOrEmpty()
             || issueModelToCheck?.deadline.isNullOrEmpty()
     ) {
         return false
     }
 
-    if (issueModelToCheck?.id == null
-            && issueModelToCheck?.owner!!.isNotEmpty()
-            && issueModelToCheck.title.isNotEmpty()
-            && issueModelToCheck.deadline.isNotEmpty()
-    ) {
-        return true
+    if (issueModelToCheck != null) {
+        if (issueModelToCheck?.id == null
+                && issueModelToCheck?.ownerId.toString()!!.isNotEmpty()
+                && issueModelToCheck.title.isNotEmpty()
+                && issueModelToCheck.deadline.isNotEmpty()
+        ) {
+            return true
+        }
     }
 
     return false

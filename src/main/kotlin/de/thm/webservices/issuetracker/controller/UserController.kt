@@ -1,9 +1,11 @@
 package de.thm.webservices.issuetracker.controller
 
 import de.thm.webservices.issuetracker.exception.BadRequestException
-import de.thm.webservices.issuetracker.exception.ForbiddenException
 import de.thm.webservices.issuetracker.exception.NoContentException
+import de.thm.webservices.issuetracker.exception.NotFoundException
+import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.model.UserModel
+import de.thm.webservices.issuetracker.service.CommentService
 import de.thm.webservices.issuetracker.service.UserService
 import de.thm.webservices.issuetracker.util.checkUUID
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
@@ -15,8 +17,11 @@ import java.util.UUID
 
 
 @RestController("UserController")
-class UserController(private val userService: UserService,
-                     private val passwordEncoder: BCryptPasswordEncoder) {
+class UserController(
+        private val userService: UserService,
+        private val commentService: CommentService,
+        private val passwordEncoder: BCryptPasswordEncoder
+) {
 
     /**
      * TODO
@@ -62,6 +67,17 @@ class UserController(private val userService: UserService,
     }
 
 
-
-
+    /**
+     *
+     *
+     * @param userId Id of user
+     * @return
+     */
+    @GetMapping("/user/comments/{userId}")
+    fun getAllCommentsOfAnUser(@PathVariable userId : UUID?) : Flux<CommentModel> {
+        if(checkUUID(userId!!)) {
+            return commentService.getAllCommentsByUserId(userId)
+        }
+        return Flux.from(Mono.error(NotFoundException("That user id is not existing")))
+    }
 }
