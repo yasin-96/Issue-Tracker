@@ -141,8 +141,9 @@ class IssueService(private val issueRepository: IssueRepository) {
     }
 
 
-    fun getByOwner(ownerId: String): Flux<IssueModel> {
+    fun getByOwnerId(ownerId: UUID): Flux<IssueModel> {
         return issueRepository.findByOwnerId(ownerId)
+                .switchIfEmpty(Mono.error(NotFoundException("Owner with this id was not found")))
     }
 
     /**
