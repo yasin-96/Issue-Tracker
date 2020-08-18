@@ -124,3 +124,5 @@ fun checkMultiplyRequestParamForDeletingComment(commenId: UUID?, issueId: UUID?)
     }
     return true
 }
+
+

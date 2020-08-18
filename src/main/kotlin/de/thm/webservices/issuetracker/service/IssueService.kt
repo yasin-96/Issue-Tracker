@@ -48,7 +48,6 @@ class IssueService(
                 .filter { authenticatedUser ->
                     authenticatedUser.name == newIssueModel.ownerId.toString()
                 }
-                .switchIfEmpty(Mono.error(ForbiddenException()))
                 .flatMap {
                     issueRepository.save(newIssueModel)
                             .switchIfEmpty(Mono.error(NoContentException("Could not create new issue")))
