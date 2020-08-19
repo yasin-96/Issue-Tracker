@@ -24,7 +24,8 @@ class IssueViewController(
      */
     @GetMapping("/_view/issueboard")
     fun getIssueData(@RequestParam issues: List<UUID>): Flux<Optional<IssueViewModel>> {
-        //TODO können wir hier die UUIDs prüfen?
+
+        //TODO UUIDs prüfen kommt noch
 
         return Flux.fromIterable(issues)
                 .flatMap {

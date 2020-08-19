@@ -28,8 +28,27 @@ fun checkUUID(uuidToCheck: UUID?): Boolean {
     return false
 }
 
+fun checkUUID(uuidToCheck: String?): Boolean {
+
+    if(uuidToCheck == null){
+        return false
+    }
+
+    if (!uuidToCheck.toString().isNotEmpty()) {
+        return false
+    }
+
+    if (uuidToCheck.toString().length == 36 && uuidToCheck.toString().split("-").size == 5) {
+        return true
+    }
+
+    return false
+}
+
+
 /**
  * Checks whether the issue has a valid content
+ * This is good for checking the object for patching attr of an issue
  *
  * @param issueModelToCheck IssueModel? Issue to check
  * @return Boolean If valid true, else false
@@ -58,7 +77,7 @@ fun checkIssueModel(issueModelToCheck: IssueModel?): Boolean {
 }
 
 /**
- *
+ * Check if the new issue has the right values
  * @param issueModelToCheck IssueModel?
  * @return Boolean
  */
@@ -104,12 +123,12 @@ fun checkPatchObject(patchObject: Map<String, Any?>?): Boolean {
 }
 
 /**
- *
+ * Checked if the values for deleting the comment has valid uuids
  * @param commenId UUID?
  * @param issueId UUID?
  * @return Boolean
  */
-fun checkMultiplyRequestParamForDeletingComment(commenId: UUID?, issueId: UUID?): Boolean{
+fun checkParamForDeletingComment(commenId: UUID?, issueId: UUID?): Boolean{
     if(commenId.toString().isNullOrEmpty() || issueId.toString().isNullOrEmpty()) {
         return false
     }
@@ -121,45 +140,16 @@ fun checkMultiplyRequestParamForDeletingComment(commenId: UUID?, issueId: UUID?)
 }
 
 /**
- *
- * @param commentModel CommentModel?
- * @return Boolean
- */
-fun checkCommentModel(commentModelToCheck: CommentModel?): Boolean {
-    if (commentModelToCheck?.id?.toString().isNullOrEmpty()
-            || commentModelToCheck?.userId.toString().isNullOrEmpty()
-            || commentModelToCheck?.issueId.toString().isNullOrEmpty()
-            || commentModelToCheck?.content.isNullOrEmpty()
-            || commentModelToCheck?.creation.isNullOrEmpty()
-    ) {
-        return false
-    }
-
-    if (commentModelToCheck != null) {
-        if (commentModelToCheck.id.toString().isNotEmpty()
-                && commentModelToCheck.userId.toString().isNotEmpty()
-                && commentModelToCheck.issueId.toString().isNotEmpty()
-                && commentModelToCheck.content.isNotEmpty()
-                && commentModelToCheck.creation.isNotEmpty()
-        ) {
-            return true
-        }
-    }
-
-    return false
-}
-
-/**
- *
+ * Check if the new comment has the right values
  * @param commentModelToCheck CommentModel?
  * @return Boolean
  */
 fun checkNewCommentModel(commentModelToCheck: CommentModel?): Boolean {
-    if (    commentModelToCheck?.id != null
+
+    if (  commentModelToCheck?.id != null
             || commentModelToCheck?.userId.toString().isNullOrEmpty()
             || commentModelToCheck?.issueId.toString().isNullOrEmpty()
             || commentModelToCheck?.content.isNullOrEmpty()
-            || commentModelToCheck?.creation != null
     ) {
         return false
     }
@@ -169,22 +159,20 @@ fun checkNewCommentModel(commentModelToCheck: CommentModel?): Boolean {
                 && commentModelToCheck.userId.toString().isNotEmpty()
                 && commentModelToCheck.issueId.toString().isNotEmpty()
                 && commentModelToCheck.content.isNotEmpty()
-                && commentModelToCheck.creation == null
         ) {
             return true
         }
     }
-
     return false
 }
 
 /**
- *
+ * Check if the new user has the rigth values
  * @param userModelToCheck UserModel?
  * @return Boolean
  */
 fun checkNewUserModel(userModelToCheck: UserModel?): Boolean {
-    if (    userModelToCheck?.id != null
+    if ( userModelToCheck?.id != null
             || userModelToCheck?.username.toString().isNullOrEmpty()
             || userModelToCheck?.password.toString().isNullOrEmpty()
             || userModelToCheck?.role.isNullOrEmpty()

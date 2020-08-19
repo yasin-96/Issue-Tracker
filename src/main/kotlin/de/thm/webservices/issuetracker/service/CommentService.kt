@@ -59,7 +59,6 @@ class CommentService(
      * @return
      */
     fun post(commentModel: CommentModel): Mono<CommentModel> {
-
         return securityContextRepository.getAuthenticatedUser()
                 .flatMap { authUser ->
 
