@@ -60,24 +60,28 @@ class CommentService(
      */
     fun post(commentModel: CommentModel): Mono<CommentModel> {
         return securityContextRepository.getAuthenticatedUser()
-                .flatMap { authUser ->
-
-                    if( authUser.name == commentModel.userId.toString()) {
-                        commentRepository.save(commentModel)
-                                .switchIfEmpty(Mono.error(NoContentException("Could not create new comment for issue")))
-                                .zipWith(taggingService.tagging(commentModel.content))
-                                .doOnSuccess { tuple ->
-                                    tuple.t2.map { uuid ->
-                                        commentTemplate.convertAndSend(
-                                                "amq.topic",
-                                                uuid.toString() + ".news",
-                                                CreateNewComment(tuple.t1.issueId!!)
-                                        )
+                .zipWith(issueRepository.existsById(commentModel.issueId!!))
+                .flatMap { tupleAI ->
+                    if(tupleAI.t2){
+                        if( tupleAI.t1.name == commentModel.userId.toString()) {
+                            commentRepository.save(commentModel)
+                                    .switchIfEmpty(Mono.error(NoContentException("Could not create new comment for issue")))
+                                    .zipWith(taggingService.tagging(commentModel.content))
+                                    .doOnSuccess { tuple ->
+                                        tuple.t2.map { uuid ->
+                                            commentTemplate.convertAndSend(
+                                                    "amq.topic",
+                                                    uuid.toString() + ".news",
+                                                    CreateNewComment(tuple.t1.issueId!!)
+                                            )
+                                        }
                                     }
-                                }
-                                .map{ it.t1 }
+                                    .map{ it.t1 }
+                        } else {
+                            Mono.error(ForbiddenException())
+                        }
                     } else {
-                        Mono.error(ForbiddenException())
+                        Mono.error(NotFoundException("Issue id was not found"))
                     }
                 }
     }
