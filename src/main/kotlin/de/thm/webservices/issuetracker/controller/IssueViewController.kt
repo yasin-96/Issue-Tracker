@@ -17,12 +17,15 @@ class IssueViewController(
 ) {
 
     /**
-     * TODO
-     * @param issues List<UUID>
-     * @return Flux<Optional<IssueViewModel>>
+     * Gets all information about the issue with the corresponding comments anhander of the id
+     *
+     * @param issues List<UUID> Ids of issues
+     * @return Flux<Optional<IssueViewModel>> Fetched data
      */
     @GetMapping("/_view/issueboard")
     fun getIssueData(@RequestParam issues: List<UUID>): Flux<Optional<IssueViewModel>> {
+
+        //TODO UUIDs prüfen kommt noch
 
         return Flux.fromIterable(issues)
                 .flatMap {
@@ -30,6 +33,5 @@ class IssueViewController(
                             .map { Optional.of(it) }
                             .switchIfEmpty(Mono.just(Optional.empty()))
                 }
-
     }
 }

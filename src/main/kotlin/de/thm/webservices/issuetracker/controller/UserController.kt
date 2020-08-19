@@ -2,11 +2,11 @@ package de.thm.webservices.issuetracker.controller
 
 import de.thm.webservices.issuetracker.exception.BadRequestException
 import de.thm.webservices.issuetracker.exception.NoContentException
-import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.service.CommentService
 import de.thm.webservices.issuetracker.service.UserService
+import de.thm.webservices.issuetracker.util.checkNewUserModel
 import de.thm.webservices.issuetracker.util.checkUUID
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
@@ -21,18 +21,21 @@ class UserController(
 ) {
 
     /**
-     * TODO
+     * Get the user information according to the id
      *
-     * @param id
-     * @return
+     * @param id UUID Id of User
+     * @return Mono<UserModel>
      */
     @GetMapping("/user/{id}")
-    fun get(@PathVariable id: UUID): Mono<UserModel> {
-        return userService.get(id)
+    fun get(@PathVariable id: UUID?): Mono<UserModel> {
+        if(checkUUID(id)){
+            return userService.get(id!!)
+        }
+        return Mono.error(BadRequestException("Wrong id was sending. ID is not an UUIDv4"))
     }
 
     /**
-     * TODO
+     * Only for testing
      * @return Flux<UserModel>
      */
     @GetMapping("/user/all")
@@ -41,58 +44,59 @@ class UserController(
     }
 
     /**
-     * TODO
-     * @param userModel UserModel
+     * Creates a new user
+     *
+     * @param userModel UserModel New user to create
      * @return Mono<UserModel>
      */
     @PostMapping("/user")
-    fun post(@RequestBody userModel: UserModel): Mono<UserModel> {
-        return userService.getCurrentUserRole()
-                .switchIfEmpty(Mono.error(BadRequestException()))
-                .flatMap {
-                    userService.post(userModel)
-                            .switchIfEmpty(Mono.error(NoContentException("User could not be created")))
-                }
+    fun post(@RequestBody userModel: UserModel?): Mono<UserModel> {
+        if(checkNewUserModel(userModel)){
+            return userService.checkIfUserIsAdmin()
+                    .switchIfEmpty(Mono.error(BadRequestException()))
+                    .flatMap {
+                        userService.post(userModel!!)
+                                .switchIfEmpty(Mono.error(NoContentException("User could not be created")))
+                    }
+        }
+        return Mono.error(BadRequestException("Wrong id was sending. ID is not an UUIDv4"))
     }
 
-
     /**
-     * TODO
-     * @param id UUID
+     * Delete one user by id
+     * @param id UUID Id of User
      * @return Mono<Void>
      */
     @DeleteMapping("/user/{id}")
-    fun delete(
-            @PathVariable id: UUID
-    ): Mono<Void> {
+    fun delete(@PathVariable id: UUID): Mono<Void> {
         if (checkUUID(id)) {
             return userService.delete(id)
         }
-        return Mono.error(NoContentException("Wrong id was sending. ID is not an UUIDv4"))
+        return Mono.error(BadRequestException("Wrong id was sending. ID is not an UUIDv4"))
     }
 
 
     /**
-     * TODO
+     * Checked if user has admin role
+     *
      * @return Mono<String>
      */
     @GetMapping("/user/role")
     fun getRole(): Mono<String> {
-        return userService.getCurrentUserRole()
+        return userService.checkIfUserIsAdmin()
     }
 
-
     /**
-     * TODO
+     * Fetches all written comments of a user according to the id
      *
-     * @param userId Id of user
-     * @return
+     * @param userId UUID? Id of User
+     * @return Flux<CommentModel>
      */
     @GetMapping("/user/comments/{userId}")
     fun getAllCommentsOfAnUser(@PathVariable userId: UUID?): Flux<CommentModel> {
         if (checkUUID(userId!!)) {
             return commentService.getAllCommentsByUserId(userId)
         }
-        return Flux.from(Mono.error(NotFoundException("That user id is not existing")))
+        return Flux.from(Mono.error(BadRequestException("That user id is not existing")))
     }
 }

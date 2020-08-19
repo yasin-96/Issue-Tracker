@@ -16,9 +16,11 @@ class UserViewController(
 ) {
 
     /**
-     * TODO
-     * @param id UUID?
-     * @return Mono<UserViewModel>
+     * Gets all the data created by the user.
+     * A separate list for the issues and comments
+     *
+     * @param id UUID? Id of User
+     * @return Mono<Optional<UserViewModel>> Fetched data
      */
     @GetMapping("/_view/userdata/{id}")
     fun getUserData(@PathVariable id: UUID?): Mono<Optional<UserViewModel>> {
