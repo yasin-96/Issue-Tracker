@@ -28,7 +28,8 @@ class SecurityConfig(
 
     @Bean
     fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-        val patterns = arrayOf("/auth/login", "/issue", "/comment")
+        val patterns = arrayOf("/auth/login")
+        val authenticatedUser = arrayOf("/issue", "/comment","/_view", "/user")
         return http.cors().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint { swe: ServerWebExchange, e: AuthenticationException? ->
@@ -44,6 +45,7 @@ class SecurityConfig(
                 .authorizeExchange()
                 .pathMatchers(*patterns).permitAll()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
+                .pathMatchers(*authenticatedUser).authenticated()
                 .anyExchange().authenticated()
                 .and()
                 .build()

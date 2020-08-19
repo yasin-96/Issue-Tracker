@@ -89,7 +89,10 @@ class UserService(
     fun delete(id: UUID): Mono<Void> {
         return securityContextRepository.getAuthenticatedUser()
                 .filter { authenticatedUser ->
-                    authenticatedUser.name == id.toString()
+                    authenticatedUser.name == id.toString() ||
+                    authenticatedUser.authorities.all {
+                        it!!.authority == "ADMIN"
+                    }
                 }
                 .switchIfEmpty(Mono.error(ForbiddenException("User can only delete his own account")))
                 .flatMap {

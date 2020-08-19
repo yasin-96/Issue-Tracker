@@ -122,7 +122,7 @@ class IssueController(private val issueService: IssueService) {
      * TODO
      * @return Flux<IssueModel>
      */
-    @GetMapping("/allIssues")
+    @GetMapping("/issue/allIssues")
     fun allIssues(): Flux<IssueModel> {
         return issueService.getAllIssues()
     }

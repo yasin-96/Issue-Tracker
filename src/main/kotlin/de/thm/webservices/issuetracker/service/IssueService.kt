@@ -60,23 +60,27 @@ class IssueService(
                     authenticatedUser.name == newIssueModel.ownerId.toString()
                 }
                 .switchIfEmpty(Mono.error(ForbiddenException()))
-                .flatMap {
-                    issueRepository.save(newIssueModel)
-                            .switchIfEmpty(Mono.error(NoContentException("Could not create new issue")))
-                            .zipWith(taggingService.tagging(newIssueModel.title))
-                            .doOnSuccess { tuple ->
+                .flatMap { authUser ->
 
-                                tuple.t2.map { uuid ->
-                                    issueTemplate.convertAndSend(
-                                            "amq.topic",
-                                            uuid.toString() + ".news",
-                                            CreateNewIssue(tuple.t1.id!!)
-                                    )
+                    if (authUser.name == newIssueModel.ownerId.toString()) {
+                        issueRepository.save(newIssueModel)
+                                .switchIfEmpty(Mono.error(NoContentException("Could not create new issue")))
+                                .zipWith(taggingService.tagging(newIssueModel.title))
+                                .doOnSuccess { tuple ->
+
+                                    tuple.t2.map { uuid ->
+                                        issueTemplate.convertAndSend(
+                                                "amq.topic",
+                                                uuid.toString() + ".news",
+                                                CreateNewIssue(tuple.t1.id!!)
+                                        )
                                     }
                                 }
+                                .map { it.t1.id!! }
+                    } else {
+                        Mono.error(ForbiddenException())
                     }
-                    .map { it.t1.id!! }
-
+                }
     }
 
     /**
@@ -87,10 +91,14 @@ class IssueService(
     fun deleteIssue(issueId: UUID): Mono<Void> {
         return securityContextRepository.getAuthenticatedUser()
                 .flatMap { authenticatedUser ->
+
                     getIssueById(issueId)
                             .switchIfEmpty(Mono.error(NotFoundException("")))
-                            .map {
-                                authenticatedUser.name == it.ownerId.toString()
+                            .filter {
+                                authenticatedUser.name == it.ownerId.toString() ||
+                                        authenticatedUser.authorities.all {
+                                            it!!.authority == "ADMIN"
+                                        }
                             }
                 }
                 .switchIfEmpty(Mono.error(ForbiddenException("You are not the owner of the issue")))
