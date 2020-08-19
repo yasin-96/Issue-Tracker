@@ -16,46 +16,45 @@ class CommentController(
         private val commentService: CommentService
 ) {
 
+
     /**
-     * TODO
+     * Returns the comments based on the Id
      *
-     * @param id
-     * @return
+     * @param id UUID? Id of issue
+     * @return Flux<CommentModel>
      */
     @GetMapping("/comments/issue/{id}")
     fun getAllCommentsByIssueId(@PathVariable id: UUID?): Flux<CommentModel> {
 
         if (checkUUID(id)) {
             return commentService.getAllCommentByIssueId(id!!)
+                    //TODO NoContent or NoFound
                     .switchIfEmpty(Mono.error(NoContentException("No comments found for this issue")))
         }
         return Flux.from(Mono.error(BadRequestException("Wrong id ")))
     }
 
-
     /**
-     * TODO
+     * Create new comment
      *
-     * @param commentModel
-     * @return
+     * @param commentModel CommentModel? Commente to create
+     * @return Mono<CommentModel>
      */
     @PostMapping("/comment")
     fun addNewComment(@RequestBody commentModel: CommentModel?): Mono<CommentModel> {
+        //TODO wollen wir hier das noch gegen prüfen? also auf das Model selbst
         return commentService.post(commentModel!!)
     }
 
     /**
-     * TODO
+     * Deletes a comment in an issue
      *
-     * @param cId
-     * @param iId
-     * @return
+     * @param cId UUID? Id of comment
+     * @param iId UUID? Id of issue
+     * @return Mono<Void>
      */
     @DeleteMapping("/comment")
-    fun deleteComment(
-            @RequestParam cId: UUID?,
-            @RequestParam iId: UUID?
-    ): Mono<Void> {
+    fun deleteComment(@RequestParam cId: UUID?, @RequestParam iId: UUID?): Mono<Void> {
         if (checkMultiplyRequestParamForDeletingComment(cId, iId)) {
             return commentService.deleteComment(cId!!, iId!!)
         }
@@ -63,7 +62,7 @@ class CommentController(
 
     }
 
-    //TODO löschen
+    //TODO löschen??
     @GetMapping("/comment/{id}")
     fun getOneComment(@PathVariable id: UUID?): Mono<CommentModel> {
         if (checkUUID(id)) {
@@ -73,7 +72,7 @@ class CommentController(
     }
 
     /**
-     * TODO
+     * TODO löschen ??
      * @return Flux<CommentModel>
      */
     @GetMapping("/comment/allcomments")

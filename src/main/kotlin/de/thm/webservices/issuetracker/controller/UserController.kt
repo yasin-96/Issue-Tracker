@@ -21,10 +21,10 @@ class UserController(
 ) {
 
     /**
-     * TODO
+     * Get the user information according to the id
      *
-     * @param id
-     * @return
+     * @param id UUID Id of User
+     * @return Mono<UserModel>
      */
     @GetMapping("/user/{id}")
     fun get(@PathVariable id: UUID): Mono<UserModel> {
@@ -41,12 +41,16 @@ class UserController(
     }
 
     /**
-     * TODO
-     * @param userModel UserModel
+     * Creates a new user
+     *
+     * @param userModel UserModel New user to create
      * @return Mono<UserModel>
      */
     @PostMapping("/user")
     fun post(@RequestBody userModel: UserModel): Mono<UserModel> {
+
+        //TODO USERMODEl prüfen
+
         return userService.getCurrentUserRole()
                 .switchIfEmpty(Mono.error(BadRequestException()))
                 .flatMap {
@@ -55,25 +59,23 @@ class UserController(
                 }
     }
 
-
     /**
-     * TODO
-     * @param id UUID
+     *
+     * @param id UUID Id of User
      * @return Mono<Void>
      */
     @DeleteMapping("/user/{id}")
-    fun delete(
-            @PathVariable id: UUID
-    ): Mono<Void> {
+    fun delete(@PathVariable id: UUID): Mono<Void> {
         if (checkUUID(id)) {
             return userService.delete(id)
         }
+        //TODO BadRequest
         return Mono.error(NoContentException("Wrong id was sending. ID is not an UUIDv4"))
     }
 
 
     /**
-     * TODO
+     * TODO ??
      * @return Mono<String>
      */
     @GetMapping("/user/role")
@@ -81,12 +83,11 @@ class UserController(
         return userService.getCurrentUserRole()
     }
 
-
     /**
-     * TODO
+     * Fetches all written comments of a user according to the id
      *
-     * @param userId Id of user
-     * @return
+     * @param userId UUID? Id of User
+     * @return Flux<CommentModel>
      */
     @GetMapping("/user/comments/{userId}")
     fun getAllCommentsOfAnUser(@PathVariable userId: UUID?): Flux<CommentModel> {

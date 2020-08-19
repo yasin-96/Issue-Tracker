@@ -12,11 +12,11 @@ class AuthController(
 ) {
 
     /**
-     * TODO
+     * Try to login the user
      *
-     * @param username
-     * @param password
-     * @return
+     * @param username String Username of User
+     * @param password String Password of User
+     * @return Mono<String> Token if success or null
      */
     @GetMapping("/auth/login")
     fun login(
