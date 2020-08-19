@@ -3,9 +3,12 @@ package de.thm.webservices.issuetracker.service
 import de.thm.webservices.issuetracker.exception.*
 import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.model.IssueViewModel
+import de.thm.webservices.issuetracker.model.event.CreateNewComment
+import de.thm.webservices.issuetracker.model.event.CreateNewIssue
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.repository.IssueRepository
 import de.thm.webservices.issuetracker.security.SecurityContextRepository
+import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -16,6 +19,8 @@ import java.util.*
 class IssueService(
         private val issueRepository: IssueRepository,
         private val commentRepository: CommentRepository,
+        private val issueTemplate: RabbitTemplate,
+        private val taggingService: TaggingService,
         private val securityContextRepository: SecurityContextRepository
 ) {
 
@@ -49,6 +54,9 @@ class IssueService(
      * @return if it works then returns the id, else null
      */
     fun addNewIssue(newIssueModel: IssueModel): Mono<UUID?> {
+
+
+
         return securityContextRepository.getAuthenticatedUser()
                 .filter { authenticatedUser ->
                     authenticatedUser.name == newIssueModel.ownerId.toString()
@@ -57,7 +65,17 @@ class IssueService(
                 .flatMap {
                     issueRepository.save(newIssueModel)
                             .switchIfEmpty(Mono.error(NoContentException("Could not create new issue")))
+                            .map {
+                                issueTemplate.convertAndSend(
+                                        "amq.topic",
+                                        taggingService.tagging(newIssueModel.title)
+                                                .map { it.map { userId -> userId }}.toString().plus(".news"),
+                                        CreateNewIssue(newIssueModel.id!!)
+                                )
+                                it
+                            }
                             .map { it.id!! }
+
                 }
     }
 

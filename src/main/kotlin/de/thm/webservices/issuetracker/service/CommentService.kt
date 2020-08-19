@@ -1,13 +1,16 @@
 package de.thm.webservices.issuetracker.service
 
+import de.thm.webservices.issuetracker.config.RabbitMQConfig
 import de.thm.webservices.issuetracker.exception.*
 import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
+import de.thm.webservices.issuetracker.model.event.CreateNewComment
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.repository.IssueRepository
 import de.thm.webservices.issuetracker.security.AuthenticatedUser
 import de.thm.webservices.issuetracker.security.SecurityContextRepository
+import org.springframework.amqp.rabbit.core.RabbitTemplate
 import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
@@ -19,8 +22,12 @@ class CommentService(
         private val commentRepository: CommentRepository,
         private val issueRepository: IssueRepository,
         private val securityContextRepository: SecurityContextRepository,
-        private  val taggingService: TaggingService
+        private val taggingService: TaggingService,
+        private val commentTemplate: RabbitTemplate
 ) {
+
+    private val topicPath = "amq.topic"
+
 
     /**
      * TODO
@@ -53,7 +60,14 @@ class CommentService(
      */
     fun post(commentModel: CommentModel): Mono<CommentModel> {
 
-        taggingService.tagging(commentModel.content)
+        commentTemplate.convertAndSend(
+                "amq.topic",
+                taggingService.tagging(commentModel.content)
+                    .map { it.map { userId -> userId }}.toString().plus(".news"),
+                CreateNewComment(commentModel.issueId!!)
+        )
+
+
 
         return securityContextRepository.getAuthenticatedUser()
                 .flatMap { authUser ->
