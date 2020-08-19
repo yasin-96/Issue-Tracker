@@ -55,8 +55,6 @@ class IssueService(
      */
     fun addNewIssue(newIssueModel: IssueModel): Mono<UUID?> {
 
-
-
         return securityContextRepository.getAuthenticatedUser()
                 .filter { authenticatedUser ->
                     authenticatedUser.name == newIssueModel.ownerId.toString()
@@ -65,18 +63,20 @@ class IssueService(
                 .flatMap {
                     issueRepository.save(newIssueModel)
                             .switchIfEmpty(Mono.error(NoContentException("Could not create new issue")))
-                            .map {
-                                issueTemplate.convertAndSend(
-                                        "amq.topic",
-                                        taggingService.tagging(newIssueModel.title)
-                                                .map { it.map { userId -> userId }}.toString().plus(".news"),
-                                        CreateNewIssue(newIssueModel.id!!)
-                                )
-                                it
-                            }
-                            .map { it.id!! }
+                            .zipWith(taggingService.tagging(newIssueModel.title))
+                            .doOnSuccess { tuple ->
 
-                }
+                                tuple.t2.map { uuid ->
+                                    issueTemplate.convertAndSend(
+                                            "amq.topic",
+                                            uuid.toString() + ".news",
+                                            CreateNewIssue(tuple.t1.id!!)
+                                    )
+                                    }
+                                }
+                    }
+                    .map { it.t1.id!! }
+
     }
 
     /**
