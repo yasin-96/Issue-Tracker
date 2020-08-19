@@ -60,19 +60,21 @@ class CommentService(
      */
     fun post(commentModel: CommentModel): Mono<CommentModel> {
 
-        commentTemplate.convertAndSend(
-                "amq.topic",
-                taggingService.tagging(commentModel.content)
-                    .map { it.map { userId -> userId }}.toString().plus(".news"),
-                CreateNewComment(commentModel.issueId!!)
-        )
-
-
-
         return securityContextRepository.getAuthenticatedUser()
                 .flatMap { authUser ->
                     commentRepository.save(commentModel)
                             .switchIfEmpty(Mono.error(NoContentException("Could not create new comment for issue")))
+                            .zipWith(taggingService.tagging(commentModel.content))
+                            .doOnSuccess { tuple ->
+                                tuple.t2.map { uuid ->
+                                    commentTemplate.convertAndSend(
+                                            "amq.topic",
+                                            uuid.toString() + ".news",
+                                            CreateNewComment(tuple.t1.issueId!!)
+                                    )
+                                }
+                            }
+                            .map{ it.t1 }
                 }
     }
 
