@@ -116,20 +116,17 @@ class UserService(
      * @param userId UUID
      * @return Mono<UserViewModel>
      */
-    fun getAllDataFromUserId(userId: UUID): Mono<UserViewModel> {
+    fun getAllDataFromUserId(userId: UUID): Mono<Optional<UserViewModel>> {
 
         val issueCreatedByUser = issueRepository.findByOwnerId(userId)
-                .switchIfEmpty(Mono.error(NotFoundException()))
                 .collectList()
 
         val commentsCreatedByUser = commentRepository.findAllByUserId(userId)
-                .switchIfEmpty(Mono.error(NoContentException("There are no comments availiable")))
                 .collectList()
 
         return Mono.zip(issueCreatedByUser, commentsCreatedByUser)
-                .switchIfEmpty(Mono.error(NotContextException()))
                 .map {
-                    UserViewModel(it.t1, it.t2)
+                    Optional.of(UserViewModel(it.t1, it.t2))
                 }
     }
 
