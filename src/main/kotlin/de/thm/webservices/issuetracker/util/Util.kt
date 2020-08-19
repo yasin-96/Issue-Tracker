@@ -6,8 +6,8 @@ import java.util.*
 /**
  * Checks the UUID against certain criteria to see if it is a UUIDV4
  *
- * @param uuidToCheck UUID to check
- * @return if valid returns true, else false
+ * @param uuidToCheck UUID? UUID to check
+ * @return Boolean if valid returns true, else false
  */
 fun checkUUID(uuidToCheck: UUID?): Boolean {
 
@@ -26,29 +26,11 @@ fun checkUUID(uuidToCheck: UUID?): Boolean {
     return false
 }
 
-fun checkUUID(uuidToCheck: String?): Boolean {
-
-    if(uuidToCheck == null){
-        return false
-    }
-
-    if (!uuidToCheck.toString().isNotEmpty()) {
-        return false
-    }
-
-    if (uuidToCheck.toString().length == 36 && uuidToCheck.toString().split("-").size == 5) {
-        return true
-    }
-
-    return false
-}
-
-
 /**
  * Checks whether the issue has a valid content
  *
- * @param issueModelToCheck issue to check
- * @return if valid returns true, else false
+ * @param issueModelToCheck IssueModel? Issue to check
+ * @return Boolean If valid true, else false
  */
 fun checkIssueModel(issueModelToCheck: IssueModel?): Boolean {
 
@@ -61,8 +43,8 @@ fun checkIssueModel(issueModelToCheck: IssueModel?): Boolean {
     }
 
     if (issueModelToCheck != null) {
-        if (issueModelToCheck?.id.toString().isNotEmpty()
-                && issueModelToCheck?.ownerId.toString()!!.isNotEmpty()
+        if (issueModelToCheck.id.toString().isNotEmpty()
+                && issueModelToCheck.ownerId.toString().isNotEmpty()
                 && issueModelToCheck.title.isNotEmpty()
                 && issueModelToCheck.deadline.isNotEmpty()
         ) {
@@ -73,6 +55,11 @@ fun checkIssueModel(issueModelToCheck: IssueModel?): Boolean {
     return false
 }
 
+/**
+ *
+ * @param issueModelToCheck IssueModel?
+ * @return Boolean
+ */
 fun checkImportantProps(issueModelToCheck: IssueModel?) : Boolean{
     if (issueModelToCheck?.id != null
             || issueModelToCheck?.ownerId.toString().isNullOrEmpty()
@@ -83,8 +70,8 @@ fun checkImportantProps(issueModelToCheck: IssueModel?) : Boolean{
     }
 
     if (issueModelToCheck != null) {
-        if (issueModelToCheck?.id == null
-                && issueModelToCheck?.ownerId.toString()!!.isNotEmpty()
+        if (issueModelToCheck.id == null
+                && issueModelToCheck.ownerId.toString().isNotEmpty()
                 && issueModelToCheck.title.isNotEmpty()
                 && issueModelToCheck.deadline.isNotEmpty()
         ) {
@@ -99,8 +86,8 @@ fun checkImportantProps(issueModelToCheck: IssueModel?) : Boolean{
 /**
  * Checks if the patch object contains values
  *
- * @param patchObject key value pair with data
- * @return valid object return true else false
+ * @param patchObject Map<String, Any?>? Key value pair with data
+ * @return Boolean valid object return true else false
  */
 fun checkPatchObject(patchObject: Map<String, Any?>?): Boolean {
 
@@ -114,6 +101,12 @@ fun checkPatchObject(patchObject: Map<String, Any?>?): Boolean {
     return false
 }
 
+/**
+ *
+ * @param commenId UUID?
+ * @param issueId UUID?
+ * @return Boolean
+ */
 fun checkMultiplyRequestParamForDeletingComment(commenId: UUID?, issueId: UUID?): Boolean{
     if(commenId.toString().isNullOrEmpty() || issueId.toString().isNullOrEmpty()) {
         return false
