@@ -21,9 +21,10 @@ class UserViewController(
      * @return Mono<UserViewModel>
      */
     @GetMapping("/_view/userdata/{id}")
-    fun getUserData(@PathVariable id: UUID?): Mono<UserViewModel> {
+    fun getUserData(@PathVariable id: UUID?): Mono<Optional<UserViewModel>> {
         if (checkUUID(id)) {
             return userService.getAllDataFromUserId(id!!)
+                    .switchIfEmpty(Mono.just(Optional.empty()))
         }
         return Mono.error(BadRequestException())
     }
