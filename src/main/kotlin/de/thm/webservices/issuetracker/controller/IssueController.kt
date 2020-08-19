@@ -7,6 +7,7 @@ import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.model.IssueViewModel
 import de.thm.webservices.issuetracker.service.IssueService
 import de.thm.webservices.issuetracker.util.checkIssueModel
+import de.thm.webservices.issuetracker.util.checkNewIssueModel
 import de.thm.webservices.issuetracker.util.checkPatchObject
 import de.thm.webservices.issuetracker.util.checkUUID
 import org.springframework.web.bind.annotation.*
@@ -28,8 +29,7 @@ class IssueController(
      */
     @PostMapping("/issue")
     fun addNewIssue(@RequestBody newIssue: IssueModel?): Mono<UUID?> {
-
-        if (checkIssueModel(newIssue)) {
+        if (checkNewIssueModel(newIssue)) {
             return issueService.addNewIssue(newIssue!!)
                     .switchIfEmpty(Mono.error(NoContentException("Issue could not created :(")))
 
@@ -47,10 +47,8 @@ class IssueController(
     fun getIssue(@PathVariable id: UUID?): Mono<IssueModel> {
         if (checkUUID(id)) {
             return issueService.getIssueById(id!!)
-
         }
-        //TODO  NoContent or BadRequest
-        return Mono.error(NoContentException("Missing ID"))
+        return Mono.error(BadRequestException("Missing ID"))
     }
 
     /**
@@ -78,8 +76,7 @@ class IssueController(
         if (checkUUID(id!!)) {
             return issueService.deleteIssue(id)
         }
-        //ToDo NotFoundException Or BadRequest
-        return Mono.error(NotFoundException("The entered issue id is not existing"))
+        return Mono.error(BadRequestException("The entered issue id is not existing"))
     }
 
     /**
@@ -94,7 +91,6 @@ class IssueController(
         if (checkUUID(id) && checkPatchObject(issueWithAttrChanges)) {
             return issueService.changeAttrFromIssue(id!!, issueWithAttrChanges)
                     .switchIfEmpty(Mono.error(NotFoundException()))
-
         }
         return Mono.error(BadRequestException("Wrong data was send. Id was not an UUIDV4 or path object are not valid"))
     }
@@ -106,19 +102,21 @@ class IssueController(
      */
     @GetMapping("/issues/{id}")
     fun issuesOfAnUser(@PathVariable id: UUID?): Flux<MutableList<IssueModel>> {
-        //TODO check UUID
-        return issueService.getAllIssues()
-                .map {
-                    val issues: MutableList<IssueModel> = mutableListOf()
-                    if (it.ownerId == id) {
-                        issues.add(it)
+        if(checkUUID(id)){
+            return issueService.getAllIssues()
+                    .map {
+                        val issues: MutableList<IssueModel> = mutableListOf()
+                        if (it.ownerId == id) {
+                            issues.add(it)
+                        }
+                        issues
                     }
-                    issues
-                }
+        }
+        return Flux.from(Mono.error(BadRequestException("Wrong data was send. Id was not an UUIDV4")))
     }
 
     /**
-     * TODO löschen??
+     * Only for Testing
      * @return Flux<IssueModel>
      */
     @GetMapping("/issue/allIssues")
@@ -136,9 +134,7 @@ class IssueController(
     fun getIssueWithComments(@PathVariable id: UUID?): Mono<IssueViewModel> {
         if (checkUUID(id)) {
             return issueService.getIssueWithAllComments(id!!)
-
         }
-        //TODO NoContent or BadRequest?
-        return Mono.error(NoContentException("Missing ID"))
+        return Mono.error(BadRequestException("Missing ID"))
     }
 }

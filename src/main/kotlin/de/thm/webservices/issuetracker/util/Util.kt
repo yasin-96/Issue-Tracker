@@ -1,6 +1,8 @@
 package de.thm.webservices.issuetracker.util
 
+import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.model.IssueModel
+import de.thm.webservices.issuetracker.model.UserModel
 import java.util.*
 
 /**
@@ -60,7 +62,7 @@ fun checkIssueModel(issueModelToCheck: IssueModel?): Boolean {
  * @param issueModelToCheck IssueModel?
  * @return Boolean
  */
-fun checkImportantProps(issueModelToCheck: IssueModel?) : Boolean{
+fun checkNewIssueModel(issueModelToCheck: IssueModel?) : Boolean{
     if (issueModelToCheck?.id != null
             || issueModelToCheck?.ownerId.toString().isNullOrEmpty()
             || issueModelToCheck?.title.isNullOrEmpty()
@@ -118,4 +120,88 @@ fun checkMultiplyRequestParamForDeletingComment(commenId: UUID?, issueId: UUID?)
     return true
 }
 
+/**
+ *
+ * @param commentModel CommentModel?
+ * @return Boolean
+ */
+fun checkCommentModel(commentModelToCheck: CommentModel?): Boolean {
+    if (commentModelToCheck?.id?.toString().isNullOrEmpty()
+            || commentModelToCheck?.userId.toString().isNullOrEmpty()
+            || commentModelToCheck?.issueId.toString().isNullOrEmpty()
+            || commentModelToCheck?.content.isNullOrEmpty()
+            || commentModelToCheck?.creation.isNullOrEmpty()
+    ) {
+        return false
+    }
+
+    if (commentModelToCheck != null) {
+        if (commentModelToCheck.id.toString().isNotEmpty()
+                && commentModelToCheck.userId.toString().isNotEmpty()
+                && commentModelToCheck.issueId.toString().isNotEmpty()
+                && commentModelToCheck.content.isNotEmpty()
+                && commentModelToCheck.creation.isNotEmpty()
+        ) {
+            return true
+        }
+    }
+
+    return false
+}
+
+/**
+ *
+ * @param commentModelToCheck CommentModel?
+ * @return Boolean
+ */
+fun checkNewCommentModel(commentModelToCheck: CommentModel?): Boolean {
+    if (    commentModelToCheck?.id != null
+            || commentModelToCheck?.userId.toString().isNullOrEmpty()
+            || commentModelToCheck?.issueId.toString().isNullOrEmpty()
+            || commentModelToCheck?.content.isNullOrEmpty()
+            || commentModelToCheck?.creation != null
+    ) {
+        return false
+    }
+
+    if (commentModelToCheck != null) {
+        if ( commentModelToCheck.id == null
+                && commentModelToCheck.userId.toString().isNotEmpty()
+                && commentModelToCheck.issueId.toString().isNotEmpty()
+                && commentModelToCheck.content.isNotEmpty()
+                && commentModelToCheck.creation == null
+        ) {
+            return true
+        }
+    }
+
+    return false
+}
+
+/**
+ *
+ * @param userModelToCheck UserModel?
+ * @return Boolean
+ */
+fun checkNewUserModel(userModelToCheck: UserModel?): Boolean {
+    if (    userModelToCheck?.id != null
+            || userModelToCheck?.username.toString().isNullOrEmpty()
+            || userModelToCheck?.password.toString().isNullOrEmpty()
+            || userModelToCheck?.role.isNullOrEmpty()
+    ) {
+        return false
+    }
+
+    if (userModelToCheck != null) {
+        if ( userModelToCheck.id == null
+                && userModelToCheck.username.isNotEmpty()
+                && userModelToCheck.password.isNotEmpty()
+                && userModelToCheck.role.isNotEmpty()
+        ) {
+            return true
+        }
+    }
+
+    return false
+}
 

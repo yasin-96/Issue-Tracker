@@ -24,7 +24,6 @@ class IssueViewController(
      */
     @GetMapping("/_view/issueboard")
     fun getIssueData(@RequestParam issues: List<UUID>): Flux<Optional<IssueViewModel>> {
-
         //TODO können wir hier die UUIDs prüfen?
 
         return Flux.fromIterable(issues)
@@ -33,6 +32,5 @@ class IssueViewController(
                             .map { Optional.of(it) }
                             .switchIfEmpty(Mono.just(Optional.empty()))
                 }
-
     }
 }

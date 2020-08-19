@@ -30,7 +30,7 @@ class UserService(
      * TODO
      * @return Mono<String>
      */
-    fun getCurrentUserRole(): Mono<String> {
+    fun checkIfUserIsAdmin(): Mono<String> {
         return securityContextRepository.getAuthenticatedUser()
                 .filter { authenticatedUser ->
                     authenticatedUser.authorities.all {

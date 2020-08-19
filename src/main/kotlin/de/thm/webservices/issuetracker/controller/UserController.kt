@@ -2,11 +2,11 @@ package de.thm.webservices.issuetracker.controller
 
 import de.thm.webservices.issuetracker.exception.BadRequestException
 import de.thm.webservices.issuetracker.exception.NoContentException
-import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.service.CommentService
 import de.thm.webservices.issuetracker.service.UserService
+import de.thm.webservices.issuetracker.util.checkNewUserModel
 import de.thm.webservices.issuetracker.util.checkUUID
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
@@ -27,12 +27,15 @@ class UserController(
      * @return Mono<UserModel>
      */
     @GetMapping("/user/{id}")
-    fun get(@PathVariable id: UUID): Mono<UserModel> {
-        return userService.get(id)
+    fun get(@PathVariable id: UUID?): Mono<UserModel> {
+        if(checkUUID(id)){
+            return userService.get(id!!)
+        }
+        return Mono.error(BadRequestException("Wrong id was sending. ID is not an UUIDv4"))
     }
 
     /**
-     * TODO
+     * Only for testing
      * @return Flux<UserModel>
      */
     @GetMapping("/user/all")
@@ -47,20 +50,20 @@ class UserController(
      * @return Mono<UserModel>
      */
     @PostMapping("/user")
-    fun post(@RequestBody userModel: UserModel): Mono<UserModel> {
-
-        //TODO USERMODEl prüfen
-
-        return userService.getCurrentUserRole()
-                .switchIfEmpty(Mono.error(BadRequestException()))
-                .flatMap {
-                    userService.post(userModel)
-                            .switchIfEmpty(Mono.error(NoContentException("User could not be created")))
-                }
+    fun post(@RequestBody userModel: UserModel?): Mono<UserModel> {
+        if(checkNewUserModel(userModel)){
+            return userService.checkIfUserIsAdmin()
+                    .switchIfEmpty(Mono.error(BadRequestException()))
+                    .flatMap {
+                        userService.post(userModel!!)
+                                .switchIfEmpty(Mono.error(NoContentException("User could not be created")))
+                    }
+        }
+        return Mono.error(BadRequestException("Wrong id was sending. ID is not an UUIDv4"))
     }
 
     /**
-     *
+     * Delete one user by id
      * @param id UUID Id of User
      * @return Mono<Void>
      */
@@ -69,18 +72,18 @@ class UserController(
         if (checkUUID(id)) {
             return userService.delete(id)
         }
-        //TODO BadRequest
-        return Mono.error(NoContentException("Wrong id was sending. ID is not an UUIDv4"))
+        return Mono.error(BadRequestException("Wrong id was sending. ID is not an UUIDv4"))
     }
 
 
     /**
-     * TODO ??
+     * Checked if user has admin role
+     *
      * @return Mono<String>
      */
     @GetMapping("/user/role")
     fun getRole(): Mono<String> {
-        return userService.getCurrentUserRole()
+        return userService.checkIfUserIsAdmin()
     }
 
     /**
@@ -94,6 +97,6 @@ class UserController(
         if (checkUUID(userId!!)) {
             return commentService.getAllCommentsByUserId(userId)
         }
-        return Flux.from(Mono.error(NotFoundException("That user id is not existing")))
+        return Flux.from(Mono.error(BadRequestException("That user id is not existing")))
     }
 }
