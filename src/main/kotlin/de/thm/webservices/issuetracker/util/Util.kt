@@ -14,15 +14,7 @@ import java.util.*
  * @return Boolean If valid true, else false
  */
 fun checkIssueModel(issueModelToCheck: IssueModel): Mono<Boolean> {
-        if (issueModelToCheck.id.toString().isNotEmpty()
-                && issueModelToCheck.ownerId.toString().isNotEmpty()
-                && issueModelToCheck.title.isNotEmpty()
-                && issueModelToCheck.deadline.isNotEmpty()
-        ) {
-            return Mono.just(true)
-        }
-
-    return Mono.just(false)
+    return Mono.just(issueModelToCheck.title.isNotEmpty() && issueModelToCheck.deadline.isNotEmpty())
 }
 
 /**
