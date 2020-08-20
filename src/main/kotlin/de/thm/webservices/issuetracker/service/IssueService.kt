@@ -141,7 +141,7 @@ class IssueService(
                     for (k in issueAttr!!) {
                         when (k.key) {
                             "title" -> issue.title = k.value ?: issue.title
-                            "ownerId" -> issue.ownerId = UUID.fromString(k.value) ?: issue.ownerId
+                            "deadline" -> issue.deadline = k.value ?: issue.deadline
                         }
                     }
                     issue
@@ -170,13 +170,7 @@ class IssueService(
      * @return Mono<IssueViewModel>
      */
     fun getIssueWithAllComments(issueId: UUID): Mono<IssueViewModel> {
-        val issue = issueRepository.findById(issueId)
-        val comments = commentRepository.findAllByIssueId(issueId).collectList()
-                .switchIfEmpty(Mono.error(NoContentException("Id in comment for issue was not correct")))
-
-        return Mono.zip(issue, comments)
-                .map {
-                    IssueViewModel(it.t1, it.t2)
-                }
+        return Mono.zip(issueRepository.findById(issueId), commentRepository.findAllByIssueId(issueId).collectList())
+                .map { IssueViewModel(it.t1, it.t2) }
     }
 }
