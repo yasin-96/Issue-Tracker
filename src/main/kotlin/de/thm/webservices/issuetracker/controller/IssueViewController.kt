@@ -27,7 +27,7 @@ class IssueViewController(
         return Flux.fromIterable(issues)
                 .flatMap {
                     issueService.getIssueWithAllComments(it)
-                            .map { Optional.of(it) }
+                            .map { uuid -> Optional.of(uuid) }
                             .switchIfEmpty(Mono.just(Optional.empty()))
                 }
     }

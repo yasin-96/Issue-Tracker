@@ -32,8 +32,8 @@ class CommentService(
     /**
      * Request all comments by issue id
      *
-     * @param issueId
-     * @return
+     * @param issueId UUID Id of issue
+     * @return Flux<CommentModel>
      */
     fun getAllCommentByIssueId(issueId: UUID): Flux<CommentModel> {
         return commentRepository.findAllByIssueId(issueId)
@@ -43,8 +43,8 @@ class CommentService(
     /**
      * Create new comment for issue
      *
-     * @param commentModel comment to create
-     * @return
+     * @param commentModel CommentModel Comment to create
+     * @return Mono<CommentModel>
      */
     fun post(commentModel: CommentModel): Mono<CommentModel> {
         return securityContextRepository.getAuthenticatedUser()
@@ -76,9 +76,9 @@ class CommentService(
     /**
      * Delete only comment if current user is owner of issue or owner of comment
      *
-     * @param commentId Id of Comment
-     * @param issueId Id of Issue
-     * @return HttpStatus Code if worked 200OK, else 401
+     * @param commentId UUID Id of Comment
+     * @param issueId UUID Id of Issue
+     * @return Mono<Void>
      */
     fun deleteComment(commentId: UUID, issueId: UUID): Mono<Void> {
         return Mono.zip(
