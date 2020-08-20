@@ -78,22 +78,18 @@ class IssueService(
     }
 
     /**
-     * TODO
-     * @param issueId UUID
-     * @return Mono<Void>
+     * Here, after the Id has been checked, the system checks
+     * whether an issue exists in the database and if so, deletes it.
+     *
+     * @param issueId UUID id of issue
+     * @return Mono<Void> if works returns true, else false
      */
     fun deleteIssue(issueId: UUID): Mono<Void> {
         return securityContextRepository.getAuthenticatedUser()
-                .flatMap { authenticatedUser ->
-
+                .flatMap { authUser ->
                     getIssueById(issueId)
-                            .switchIfEmpty(Mono.error(NotFoundException("")))
-                            .filter {
-                                authenticatedUser.name == it.ownerId.toString() ||
-                                        authenticatedUser.authorities.all {
-                                            it!!.authority == "ADMIN"
-                                        }
-                            }
+                        .switchIfEmpty(Mono.error(NotFoundException("")))
+                        .filter { authUser.hasRightsOrIsAdmin(it.ownerId)}
                 }
                 .switchIfEmpty(Mono.error(ForbiddenException("You are not the owner of the issue")))
                 .flatMap {
@@ -110,28 +106,18 @@ class IssueService(
      * @return if it works issue as json, else null
      */
     fun updateIssue(idOfIssue: UUID, issueModelToUpdate: IssueModel): Mono<IssueModel> {
-        return getIssueById(idOfIssue)
-                .switchIfEmpty(Mono.error(NotFoundException()))
+        return securityContextRepository.getAuthenticatedUser()
+                .filter { it.hasRightsOrIsAdmin(issueModelToUpdate.ownerId) }
+                .switchIfEmpty(Mono.error(ForbiddenException("You are not the owner of the issue")))
                 .flatMap {
-                    issueRepository.save(IssueModel(it.id, issueModelToUpdate.title, issueModelToUpdate.ownerId, issueModelToUpdate.deadline))
-                            .switchIfEmpty(Mono.error(NotModifiedException("Id was not found and issue was not modified")))
+                    getIssueById(idOfIssue)
+                            .switchIfEmpty(Mono.error(NotFoundException()))
+                            .flatMap {
+                                issueRepository.save(IssueModel(it.id, issueModelToUpdate.title, issueModelToUpdate.ownerId, issueModelToUpdate.deadline))
+                                        .switchIfEmpty(Mono.error(NotModifiedException("Id was not found and issue was not modified")))
+                            }
                 }
-    }
 
-    /**
-     * Here, after the Id has been checked, the system checks
-     * whether an issue exists in the database and if so, deletes it.
-     *
-     * @param issueWithIdToRemove id of issue
-     * @return if works returns true, else false
-     */
-    fun removeIssueById(issueWithIdToRemove: UUID): Mono<Void> {
-
-        return getIssueById(issueWithIdToRemove)
-                .switchIfEmpty(Mono.error(NotFoundException("Id not found. Issue was not removed")))
-                .flatMap {
-                    issueRepository.delete(it)
-                }
     }
 
     /**
@@ -142,30 +128,28 @@ class IssueService(
      * @param issueAttr attribute to change the value
      * @return if attribute was found and id is valid then returns issue as json, else null
      */
-    fun changeAttrFromIssue(idOfIssue: UUID, issueAttr: Map<String, Any?>?): Mono<IssueModel> {
+    fun changeAttrFromIssue(idOfIssue: UUID, issueAttr: Map<String, String?>?): Mono<IssueModel> {
 
-        return getIssueById(idOfIssue)
-                .switchIfEmpty(Mono.error(NotModifiedException("Could not update prop from Issue ")))
-                .flatMap {
+        return securityContextRepository.getAuthenticatedUser()
+                .flatMap { authUser ->
+                    getIssueById(idOfIssue)
+                            .switchIfEmpty(Mono.error(NotFoundException()))
+                            .filter { authUser.hasRightsOrIsAdmin(it.ownerId) }
+                }
+                .switchIfEmpty(Mono.error(ForbiddenException("You are not the owner of the issue")))
+                .map { issue ->
                     for (k in issueAttr!!) {
                         when (k.key) {
-                            "title" -> it.title = if (!k.value?.toString().isNullOrEmpty()) {
-                                k.value.toString()
-                            } else {
-                                it.title
-                            }
-                            "ownerId" -> it.ownerId = if (!k.value?.toString().isNullOrEmpty()) {
-                                k.value as UUID
-                            } else {
-                                it.ownerId
-                            }
+                            "title" -> issue.title = k.value ?: issue.title
+                            "ownerId" -> issue.ownerId = UUID.fromString(k.value) ?: issue.ownerId
                         }
                     }
-
-                    issueRepository.save(IssueModel(it.id, it.title, it.ownerId, it.deadline))
+                    issue
+                }
+                .flatMap { issue ->
+                    issueRepository.save(IssueModel(issue.id, issue.title, issue.ownerId, issue.deadline))
                             .switchIfEmpty(Mono.error(NotModifiedException("Could not update prop from Issue ")))
                 }
-
     }
 
 
@@ -179,21 +163,6 @@ class IssueService(
                 .switchIfEmpty(Mono.error(NotFoundException()))
     }
 
-    /**
-     * TODO
-     *
-     * @param currentUser
-     * @param issueId
-     * @return
-     */
-    fun checkCurrentUserIsOwnerOfIssue(currentUser: String, issueId: UUID): Mono<Boolean> {
-        return issueRepository.findById(issueId)
-                .switchIfEmpty(Mono.error(NotFoundException("Issue id was not found")))
-                .map {
-                    val check = it.ownerId.toString() == currentUser
-                    check
-                }
-    }
 
     /**
      * TODO
