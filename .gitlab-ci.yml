@@ -3,10 +3,11 @@ stages:
   - test
   
 build-backend: 
-  image: gradle
+  tags: 
+    - gradle
   stage: build
   script:
-    - .\gradlew clean install 
+    - gradle clean install 
   artifacts:
     paths: 
       - backend/target/**
