@@ -164,6 +164,16 @@ class IssueService(
     }
 
     /**
+     * Returns all issues based  on user id
+     * @param ownerId UUID Id of owner
+     * @return Flux<IssueModel>
+     */
+    fun getAllIssuesFromOwnerByIdForStats(ownerId: UUID): Flux<IssueModel> {
+        return issueRepository.findByOwnerId(ownerId)
+    }
+
+
+    /**
      * Return a model with issue and his c
      * @param issueId UUID
      * @return Mono<IssueViewModel>

@@ -37,6 +37,11 @@ class UserService(
                 }
     }
 
+    /**
+     *
+     * @param name String
+     * @return Mono<UUID>
+     */
     fun getIdFromUsername(name:String) : Mono<UUID>{
         return securityContextRepository.getAuthenticatedUser()
                 .filter { it.hasAdminRights() }

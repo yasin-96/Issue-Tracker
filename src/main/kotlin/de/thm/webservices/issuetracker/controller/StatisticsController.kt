@@ -1,5 +1,6 @@
 package de.thm.webservices.issuetracker.controller
 
+import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.model.StatsModel
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.repository.IssueRepository
@@ -17,12 +18,23 @@ import java.util.*
 class StatisticsController(var commentService: CommentService,var issueService: IssueService) {
 
     @GetMapping("/_stats")
-    fun getStatsFromIds(@RequestParam userIds:List<UUID>) : Flux<StatsModel> {
+    fun getStatsFromIds(@RequestParam userIds: List<UUID>): Flux<Optional<StatsModel>> {
         return Flux.fromIterable(userIds)
-                .map {
-                    it
-                    }
-                .zipWith(issueService.getAllIssuesFromOwnerById())
+                .flatMap { userId ->
+                    Flux.zip(
+                            issueService.getAllIssuesFromOwnerByIdForStats(userId)
+                                    .collectList(),
+                            commentService.getAllCommentsByUserIdForStats(userId)
+                                    .collectList()
+                    )
+                            .map {
+                                Optional.of(StatsModel(
+                                        userId,
+                                        it.t1.count(),
+                                        it.t2.count()
+                                ))
+                            }
                 }
     }
+}
 
