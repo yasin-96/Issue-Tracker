@@ -65,17 +65,6 @@ class UserController(
             return userService.delete(id)
     }
 
-
-    /**
-     * Checked if user has admin role
-     *
-     * @return Mono<String>
-     */
-    @GetMapping("/user/role")
-    fun getRole(): Mono<String> {
-        return userService.checkIfUserIsAdmin()
-    }
-
     /**
      * Fetches all written comments of a user according to the id
      *
