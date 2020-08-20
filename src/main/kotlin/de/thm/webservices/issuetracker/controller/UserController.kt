@@ -36,16 +36,6 @@ class UserController(
     }
 
     /**
-     * TODO raus for abgabe
-     * Only for testing
-     * @return Flux<UserModel>
-     */
-    @GetMapping("/user/all")
-    fun getAll(): Flux<UserModel> {
-        return userService.getAll()
-    }
-
-    /**
      * Creates a new user
      *
      * @param userModel UserModel New user to create

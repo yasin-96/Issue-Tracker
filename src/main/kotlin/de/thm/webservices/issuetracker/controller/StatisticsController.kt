@@ -6,6 +6,7 @@ import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.repository.IssueRepository
 import de.thm.webservices.issuetracker.service.CommentService
 import de.thm.webservices.issuetracker.service.IssueService
+import de.thm.webservices.issuetracker.service.UserService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -15,7 +16,11 @@ import reactor.kotlin.core.publisher.toMono
 import java.util.*
 
 @RestController
-class StatisticsController(var commentService: CommentService,var issueService: IssueService) {
+class StatisticsController(
+        private val commentService: CommentService,
+        private val issueService: IssueService,
+        private val userService: UserService
+) {
 
     @GetMapping("/_stats")
     fun getStatsFromIds(@RequestParam userIds: List<UUID>): Flux<Optional<StatsModel>> {
@@ -34,6 +39,16 @@ class StatisticsController(var commentService: CommentService,var issueService: 
                                         it.t2.count()
                                 ))
                             }
+                }
+    }
+
+
+    @GetMapping("/_stats/registered")
+    fun getAllRegisteredUser(): Mono<Map<String, Int>> {
+        return userService.getAll().collectList()
+                .map { it.count() }
+                .map{
+                    mapOf("registeredUser" to it)
                 }
     }
 }
