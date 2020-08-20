@@ -1,12 +1,9 @@
 package de.thm.webservices.issuetracker.controller
 
 import de.thm.webservices.issuetracker.exception.BadRequestException
-import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.service.CommentService
-import de.thm.webservices.issuetracker.util.checkParamForDeletingComment
 import de.thm.webservices.issuetracker.util.checkNewCommentModel
-import de.thm.webservices.issuetracker.util.checkUUID
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -24,13 +21,8 @@ class CommentController(
      * @return Flux<CommentModel>
      */
     @GetMapping("/comments/issue/{id}")
-    fun getAllCommentsByIssueId(@PathVariable id: UUID?): Flux<CommentModel> {
-
-        if (checkUUID(id)) {
-            return commentService.getAllCommentByIssueId(id!!)
-                    .switchIfEmpty(Mono.error(NotFoundException("No comments found for this issue")))
-        }
-        return Flux.from(Mono.error(BadRequestException("Wrong id ")))
+    fun getAllCommentsByIssueId(@PathVariable id: UUID): Flux<CommentModel> {
+            return commentService.getAllCommentByIssueId(id)
     }
 
     /**
@@ -40,12 +32,10 @@ class CommentController(
      * @return Mono<CommentModel>
      */
     @PostMapping("/comment")
-    fun addNewComment(@RequestBody commentModel: CommentModel?): Mono<CommentModel> {
-
-        if(checkNewCommentModel(commentModel)){
-            return commentService.post(commentModel!!)
-        }
-        return Mono.error(BadRequestException())
+    fun addNewComment(@RequestBody commentModel: CommentModel): Mono<CommentModel> {
+        return Mono.zip(checkNewCommentModel(commentModel), commentService.post(commentModel))
+                .switchIfEmpty(Mono.error(BadRequestException()))
+                .map { it.t2 }
     }
 
     /**
@@ -56,28 +46,12 @@ class CommentController(
      * @return Mono<Void>
      */
     @DeleteMapping("/comment")
-    fun deleteComment(@RequestParam cId: UUID?, @RequestParam iId: UUID?): Mono<Void> {
-        if (checkParamForDeletingComment(cId, iId)) {
-            return commentService.deleteComment(cId!!, iId!!)
-        }
-        return Mono.error(BadRequestException())
-
+    fun deleteComment(@RequestParam cId: UUID, @RequestParam iId: UUID): Mono<Void> {
+        return commentService.deleteComment(cId, iId)
     }
 
     /**
-     * Only for testing
-     * @param id UUID? Id of comment
-     * @return Mono<CommentModel>
-     */
-    @GetMapping("/comment/{id}")
-    fun getOneComment(@PathVariable id: UUID?): Mono<CommentModel> {
-        if (checkUUID(id)) {
-            return commentService.getCommentById(id!!)
-        }
-        return Mono.error(BadRequestException())
-    }
-
-    /**
+     * TODO raus vor der abgabe
      * Only for testing
      * @return Flux<CommentModel>
      */

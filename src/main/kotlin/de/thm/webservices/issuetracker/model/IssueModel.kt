@@ -8,6 +8,6 @@ import java.util.*
 data class IssueModel(
         @Id var id: UUID?,
         var title: String,
-        var ownerId: UUID?,
+        var ownerId: UUID,
         var deadline : String
 )

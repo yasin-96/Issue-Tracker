@@ -10,8 +10,8 @@ import java.time.format.DateTimeFormatter
 data class CommentModel(
         @Id var id: UUID?,
         var content: String,
-        var userId: UUID?,
-        var issueId: UUID?
+        var userId: UUID,
+        var issueId: UUID
 ) {
     val creation: String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
 }
