@@ -1,8 +1,6 @@
 package de.thm.webservices.issuetracker.controller
 
 import de.thm.webservices.issuetracker.exception.BadRequestException
-import de.thm.webservices.issuetracker.exception.NoContentException
-import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.model.IssueViewModel
 import de.thm.webservices.issuetracker.service.IssueService
@@ -92,17 +90,14 @@ class IssueController(
      * @param id UUID Id of issue
      * @return Flux<MutableList<IssueModel>>
      */
-    @GetMapping("/issues/{id}")
-    fun issuesOfAnUser(@PathVariable id: UUID): Flux<MutableList<IssueModel>> {
+    @GetMapping("/issue/user/{id}")
+    fun issuesOfAnUser(@PathVariable id: UUID): Flux<IssueModel> {
         return issueService.getAllIssues()
                 .switchIfEmpty(Flux.from(Mono.error(BadRequestException("Wrong data was send. Id was not an UUIDV4"))))
-                .map {
-                    val issues: MutableList<IssueModel> = mutableListOf()
-                    if (it.ownerId == id) {
-                        issues.add(it)
-                    }
-                    issues
+                .filter {
+                    it.ownerId == id
                 }
+                .map { it }
     }
 
     /** TODO rauswerfen
