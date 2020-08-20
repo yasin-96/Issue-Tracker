@@ -1,0 +1,14 @@
+stages:
+  - build
+  - test
+  
+build-backend: 
+  stage: build
+  script:
+    - .\gradlew clean install 
+  artifacts:
+    paths: 
+      - backend/target/**
+    when: always
+    expire_in: 2 hours
+      
