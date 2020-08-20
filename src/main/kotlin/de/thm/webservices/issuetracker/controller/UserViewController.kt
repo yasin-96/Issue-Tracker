@@ -23,8 +23,8 @@ class UserViewController(
      * @return Mono<Optional<UserViewModel>> Fetched data
      */
     @GetMapping("/_view/userdata/{id}")
-    fun getUserData(@PathVariable id: UUID?): Mono<Optional<UserViewModel>> {
-            return userService.getAllDataFromUserId(id!!)
+    fun getUserData(@PathVariable id: UUID): Mono<Optional<UserViewModel>> {
+            return userService.getAllDataFromUserId(id)
                     .switchIfEmpty(Mono.error(NotFoundException()))
     }
 }

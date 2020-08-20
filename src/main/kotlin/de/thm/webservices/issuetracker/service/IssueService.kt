@@ -23,6 +23,8 @@ class IssueService(
         private val taggingService: TaggingService,
         private val securityContextRepository: SecurityContextRepository
 ) {
+    private val topicPath = "amq.topic"
+    private val postFixNews = ".news"
 
     /**
      * Here the ID is checked again and if the validation has run through and
@@ -66,8 +68,8 @@ class IssueService(
                 .doOnSuccess { tuple ->
                     tuple.t2.map { uuid ->
                         issueTemplate.convertAndSend(
-                                "amq.topic",
-                                uuid.toString() + ".news",
+                                topicPath,
+                                uuid.toString() + postFixNews,
                                 CreateNewIssue(tuple.t1.id!!)
                         )
                     }
@@ -162,7 +164,6 @@ class IssueService(
         return issueRepository.findByOwnerId(ownerId)
                 .switchIfEmpty(Mono.error(NotFoundException()))
     }
-
 
     /**
      * TODO
