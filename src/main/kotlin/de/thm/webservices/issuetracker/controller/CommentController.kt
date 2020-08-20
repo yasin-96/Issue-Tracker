@@ -32,13 +32,10 @@ class CommentController(
      * @return Mono<CommentModel>
      */
     @PostMapping("/comment")
-    fun addNewComment(@RequestBody commentModel: CommentModel?): Mono<CommentModel> {
-
-        //TODO
-        if(checkNewCommentModel(commentModel)){
-            return commentService.post(commentModel!!)
-        }
-        return Mono.error(BadRequestException())
+    fun addNewComment(@RequestBody commentModel: CommentModel): Mono<CommentModel> {
+        return Mono.zip(checkNewCommentModel(commentModel), commentService.post(commentModel))
+                .switchIfEmpty(Mono.error(BadRequestException()))
+                .map { it.t2 }
     }
 
     /**
@@ -51,17 +48,6 @@ class CommentController(
     @DeleteMapping("/comment")
     fun deleteComment(@RequestParam cId: UUID, @RequestParam iId: UUID): Mono<Void> {
         return commentService.deleteComment(cId, iId)
-    }
-
-    /**
-     * TODO raus vor der abgabe
-     * Only for testing
-     * @param id UUID? Id of comment
-     * @return Mono<CommentModel>
-     */
-    @GetMapping("/comment/{id}")
-    fun getOneComment(@PathVariable id: UUID): Mono<CommentModel> {
-            return commentService.getCommentById(id)
     }
 
     /**

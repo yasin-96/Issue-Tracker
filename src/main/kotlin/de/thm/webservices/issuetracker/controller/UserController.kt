@@ -53,16 +53,11 @@ class UserController(
      * @return Mono<UserModel>
      */
     @PostMapping("/user")
-    fun post(@RequestBody userModel: UserModel?): Mono<UserModel> {
-        if(checkNewUserModel(userModel)){
-            return userService.checkIfUserIsAdmin()
-                    .switchIfEmpty(Mono.error(BadRequestException()))
-                    .flatMap {
-                        userService.post(userModel!!)
-                                .switchIfEmpty(Mono.error(NoContentException("User could not be created")))
-                    }
-        }
-        return Mono.error(BadRequestException("Wrong id was sending. ID is not an UUIDv4"))
+    fun post(@RequestBody userModel: UserModel): Mono<UserModel> {
+        return Mono.zip(checkNewUserModel(userModel), userService.post(userModel))
+                .filter { it.t1 }
+                .switchIfEmpty(Mono.error(BadRequestException()))
+                .map { it.t2 }
     }
 
     /**
@@ -73,7 +68,6 @@ class UserController(
     @DeleteMapping("/user/{id}")
     fun delete(@PathVariable id: UUID): Mono<Void> {
             return userService.delete(id)
-                    .switchIfEmpty(Mono.error(BadRequestException("Wrong id was sending. ID is not an UUIDv4")))
     }
 
 
@@ -96,6 +90,5 @@ class UserController(
     @GetMapping("/user/comments/{userId}")
     fun getAllCommentsOfAnUser(@PathVariable userId: UUID): Flux<CommentModel> {
             return commentService.getAllCommentsByUserId(userId)
-                    .switchIfEmpty(Flux.from(Mono.error(BadRequestException("That user id is not existing"))))
     }
 }

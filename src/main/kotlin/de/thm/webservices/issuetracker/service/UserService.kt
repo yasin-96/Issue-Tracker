@@ -57,11 +57,16 @@ class UserService(
      * @return Mono<UserModel>
      */
     fun get(id: UUID): Mono<UserModel> {
-        return userRepository.findById(id)
+        return securityContextRepository.getAuthenticatedUser()
+                .filter { it.hasRightsOrIsAdmin(id) }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .flatMap {
+                    userRepository.findById(id)
+                }
     }
 
     /**
-     * TODO
+     * TODO muss raus
      * @return Flux<UserModel>
      */
     fun getAll(): Flux<UserModel> {
@@ -83,13 +88,19 @@ class UserService(
      * @return Mono<UserModel>
      */
     fun post(userModel: UserModel): Mono<UserModel> {
-        userModel.password = passwordEncoder.encode(userModel.password)
-        return userRepository.save(userModel)
+
+        return securityContextRepository.getAuthenticatedUser()
+                .filter { it.hasAdminRights() }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .flatMap {
+                    userModel.password = passwordEncoder.encode(userModel.password)
+                    userRepository.save(userModel)
+                }
     }
 
     /**
-     * TODO
-     * @param id UUID
+     * Delete one user based on the id
+     * @param id UUID Id of user
      * @return Mono<Void>
      */
     fun delete(id: UUID): Mono<Void> {

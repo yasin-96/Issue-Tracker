@@ -27,19 +27,7 @@ class CommentService(
 ) {
 
     private val topicPath = "amq.topic"
-
-
-    /**
-     * TODO
-     *
-     * @param commentId
-     * @return
-     */
-    fun getCommentById(commentId: UUID): Mono<CommentModel> {
-        return commentRepository.findById(commentId)
-                .switchIfEmpty(Mono.error(NotFoundException("Id not found")))
-    }
-
+    private val postFixNews = ".news"
 
     /**
      * Request all comments by issue id
@@ -60,30 +48,29 @@ class CommentService(
      */
     fun post(commentModel: CommentModel): Mono<CommentModel> {
         return securityContextRepository.getAuthenticatedUser()
-                .zipWith(issueRepository.existsById(commentModel.issueId!!))
-                .flatMap { tupleAI ->
-                    if(tupleAI.t2){
-                        if( tupleAI.t1.name == commentModel.userId.toString()) {
-                            commentRepository.save(commentModel)
-                                    .switchIfEmpty(Mono.error(NoContentException("Could not create new comment for issue")))
-                                    .zipWith(taggingService.tagging(commentModel.content))
-                                    .doOnSuccess { tuple ->
-                                        tuple.t2.map { uuid ->
-                                            commentTemplate.convertAndSend(
-                                                    "amq.topic",
-                                                    uuid.toString() + ".news",
-                                                    CreateNewComment(tuple.t1.issueId!!)
-                                            )
-                                        }
-                                    }
-                                    .map{ it.t1 }
-                        } else {
-                            Mono.error(ForbiddenException())
-                        }
-                    } else {
-                        Mono.error(NotFoundException("Issue id was not found"))
+                //check rights
+                .filter { it.hasRightsOrIsAdmin(commentModel.userId) }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+
+                //check issue exist
+                .zipWith(issueRepository.existsById(commentModel.issueId))
+                .filter { it.t2 }
+                .switchIfEmpty(Mono.error(NotFoundException("Issue with this is doesn't exist")))
+
+                // save comment and send stomp message
+                .flatMap { commentRepository.save(commentModel) }
+                .switchIfEmpty(Mono.error(NoContentException("Could not create new comment for issue")))
+                .zipWith(taggingService.tagging(commentModel.content))
+                .doOnSuccess { tupleCT ->
+                    tupleCT.t2.map { uuid ->
+                        commentTemplate.convertAndSend(
+                                topicPath,
+                                uuid.toString() + postFixNews,
+                                CreateNewComment(tupleCT.t1.issueId)
+                        )
                     }
                 }
+                .map { it.t1 }
     }
 
     /**
@@ -94,72 +81,37 @@ class CommentService(
      * @return HttpStatus Code if worked 200OK, else 401
      */
     fun deleteComment(commentId: UUID, issueId: UUID): Mono<Void> {
-        return securityContextRepository.getAuthenticatedUser()
-                .flatMap { authUser ->
-//                    val ownerOfIssue = issueService.checkCurrentUserIsOwnerOfIssue(authUser.name, issueId)
-                    val ownerOfIssue = issueRepository
-                            .findById(issueId)
-                            .map {
-                                val check = if (it.ownerId.toString() == authUser.name) true else false
-                                check
-                            }
-
-                    val ownerOfComment = checkCurrentUserIsOwnerOfComment(authUser.name, commentId)
-                    Mono.zip(ownerOfIssue, ownerOfComment)
-                            .filter {
-                                it.t1 || it.t2
-                            }
-                            .switchIfEmpty(Mono.error(ForbiddenException("No rights to delete the comment")))
+        return Mono.zip(
+                securityContextRepository.getAuthenticatedUser(),
+                issueRepository.findById(issueId),
+                commentRepository.findById(commentId)
+        )
+                .filter {
+                    it.t1.hasRightsOrIsAdmin(it.t2.ownerId) ||
+                            it.t1.hasRightsOrIsAdmin(it.t3.userId)
                 }
-                .switchIfEmpty(Mono.error(BadRequestException()))
-                .flatMap {
-                    removeCommentById(commentId)
-                }
-    }
-
-    /**
-     * TODO
-     *
-     * @param currentUser
-     * @param commentId
-     * @return
-     */
-    fun checkCurrentUserIsOwnerOfComment(currentUser: String, commentId: UUID): Mono<Boolean> {
-        return commentRepository.findById(commentId)
-                .switchIfEmpty(Mono.error(NotFoundException("Issue id was not found")))
-                .map {
-                    val check = if (it.userId.toString() == currentUser) true else false
-                    check
-                }
-    }
-
-    /**
-     * TODO
-     *
-     * @param commentId
-     * @return
-     */
-    fun removeCommentById(commentId: UUID): Mono<Void> {
-        return getCommentById(commentId)
-                .switchIfEmpty(Mono.error(NotFoundException("Id not found. Comment was not removed")))
-                .flatMap {
-                    commentRepository.delete(it)
-                }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .flatMap { commentRepository.deleteById(commentId) }
     }
 
 
     /**
-     * TODO
+     * Returns all comments written from user, searched by id
      * @param userId UUID
      * @return Flux<CommentModel>
      */
     fun getAllCommentsByUserId(userId: UUID): Flux<CommentModel> {
-        return commentRepository.findAllByUserId(userId)
-                .switchIfEmpty(Mono.error(NoContentException("User has no comments written")))
+        return securityContextRepository.getAuthenticatedUser()
+                .filter{it.hasRightsOrIsAdmin(userId)}
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .flatMapMany {
+                    commentRepository.findAllByUserId(userId)
+                            .switchIfEmpty(Mono.error(NoContentException("User has no comments written")))
+                }
     }
 
     /**
-     * TODO
+     * TODO muss raus
      * @return Flux<CommentModel>
      */
     fun getAll(): Flux<CommentModel> {

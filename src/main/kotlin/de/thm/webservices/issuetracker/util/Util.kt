@@ -14,7 +14,9 @@ import java.util.*
  * @return Boolean If valid true, else false
  */
 fun checkIssueModel(issueModelToCheck: IssueModel): Mono<Boolean> {
-    return Mono.just(issueModelToCheck.title.isNotEmpty() && issueModelToCheck.deadline.isNotEmpty())
+    return Mono.just(
+            issueModelToCheck.title.isNotEmpty()
+                    && issueModelToCheck.deadline.isNotEmpty())
 }
 
 /**
@@ -22,15 +24,13 @@ fun checkIssueModel(issueModelToCheck: IssueModel): Mono<Boolean> {
  * @param issueModelToCheck IssueModel?
  * @return Boolean
  */
-fun checkNewIssueModel(issueModelToCheck: IssueModel) : Mono<Boolean> {
-        if (issueModelToCheck.id == null
-                && issueModelToCheck.ownerId.toString().isNotEmpty()
-                && issueModelToCheck.title.isNotEmpty()
-                && issueModelToCheck.deadline.isNotEmpty()
-        ) {
-            return Mono.just(true)
-        }
-    return Mono.just(false)
+fun checkNewIssueModel(issueModelToCheck: IssueModel): Mono<Boolean> {
+    return Mono.just(
+            issueModelToCheck.id == null
+                    && issueModelToCheck.ownerId.toString().isNotEmpty()
+                    && issueModelToCheck.title.isNotEmpty()
+                    && issueModelToCheck.deadline.isNotEmpty()
+    )
 }
 
 
@@ -57,26 +57,13 @@ fun checkPatchObject(patchObject: Map<String, String>): Mono<Boolean> {
  * @param commentModelToCheck CommentModel?
  * @return Boolean
  */
-fun checkNewCommentModel(commentModelToCheck: CommentModel?): Boolean {
-
-    if (  commentModelToCheck?.id != null
-            || commentModelToCheck?.userId.toString().isNullOrEmpty()
-            || commentModelToCheck?.issueId.toString().isNullOrEmpty()
-            || commentModelToCheck?.content.isNullOrEmpty()
-    ) {
-        return false
-    }
-
-    if (commentModelToCheck != null) {
-        if ( commentModelToCheck.id == null
-                && commentModelToCheck.userId.toString().isNotEmpty()
-                && commentModelToCheck.issueId.toString().isNotEmpty()
-                && commentModelToCheck.content.isNotEmpty()
-        ) {
-            return true
-        }
-    }
-    return false
+fun checkNewCommentModel(commentModelToCheck: CommentModel): Mono<Boolean> {
+    return Mono.just(
+            commentModelToCheck.id == null
+                    && commentModelToCheck.userId.toString().isNotEmpty()
+                    && commentModelToCheck.issueId.toString().isNotEmpty()
+                    && commentModelToCheck.content.isNotEmpty()
+    )
 }
 
 /**
@@ -84,25 +71,12 @@ fun checkNewCommentModel(commentModelToCheck: CommentModel?): Boolean {
  * @param userModelToCheck UserModel?
  * @return Boolean
  */
-fun checkNewUserModel(userModelToCheck: UserModel?): Boolean {
-    if ( userModelToCheck?.id != null
-            || userModelToCheck?.username.toString().isNullOrEmpty()
-            || userModelToCheck?.password.toString().isNullOrEmpty()
-            || userModelToCheck?.role.isNullOrEmpty()
-    ) {
-        return false
-    }
-
-    if (userModelToCheck != null) {
-        if ( userModelToCheck.id == null
-                && userModelToCheck.username.isNotEmpty()
-                && userModelToCheck.password.isNotEmpty()
-                && userModelToCheck.role.isNotEmpty()
-        ) {
-            return true
-        }
-    }
-
-    return false
+fun checkNewUserModel(userModelToCheck: UserModel): Mono<Boolean> {
+    return Mono.just(
+            userModelToCheck.id == null
+                    && userModelToCheck.username.isNotEmpty()
+                    && userModelToCheck.password.isNotEmpty()
+                    && userModelToCheck.role.isNotEmpty()
+    )
 }
 
