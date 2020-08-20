@@ -46,8 +46,14 @@ class UserService(
 
 
     fun getIdFromUsername(name:String) : Mono<UUID>{
-        return userRepository.findByUsername(name)
-                .map { user -> user.id!!}
+        return securityContextRepository.getAuthenticatedUser()
+                .filter { it.hasAdminRights() }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .flatMap {
+                    userRepository.findByUsername(name)
+                            .map { user -> user.id!!}
+                            .switchIfEmpty(Mono.error(NotFoundException("The username you entered is not existing")))
+                }
     }
 
 

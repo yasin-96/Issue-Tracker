@@ -20,8 +20,8 @@ class UserController(
 ) {
 
     @GetMapping("/user/name")
-    fun getIdFromUsername(@RequestParam name:String){
-        return
+    fun getIdFromUsername(@RequestParam name:String) : Mono<UUID>{
+        return userService.getIdFromUsername(name)
     }
 
     /**
