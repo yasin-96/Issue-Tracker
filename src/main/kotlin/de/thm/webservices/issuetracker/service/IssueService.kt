@@ -3,7 +3,6 @@ package de.thm.webservices.issuetracker.service
 import de.thm.webservices.issuetracker.exception.*
 import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.model.IssueViewModel
-import de.thm.webservices.issuetracker.model.event.CreateNewComment
 import de.thm.webservices.issuetracker.model.event.CreateNewIssue
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.repository.IssueRepository
@@ -31,8 +30,8 @@ class IssueService(
      * everything has worked, then the database is checked with
      * the id to see if an issue could be found
      *
-     * @param idFromIssue UUID from issue
-     * @return if found returns issue, else null
+     * @param idFromIssue UUID Id of issue
+     * @return Mono<IssueModel>
      */
     fun getIssueById(idFromIssue: UUID): Mono<IssueModel> {
         return issueRepository.findById(idFromIssue)
@@ -52,8 +51,8 @@ class IssueService(
      * Here, after the issue has been reviewed again,
      * the data is stored in the database.
      *
-     * @param newIssueModel new issue to create
-     * @return if it works then returns the id, else null
+     * @param newIssueModel IssueModel New issue to create
+     * @return Mono<UUID>
      */
     fun addNewIssue(newIssueModel: IssueModel): Mono<UUID> {
 
@@ -103,9 +102,9 @@ class IssueService(
     /**
      * Here, after the issue has been checked again,
      * and then the existing issue is updated in the database
-     *
-     * @param issueModelToUpdate issue to update
-     * @return if it works issue as json, else null
+     * @param idOfIssue UUID  Id of issue
+     * @param issueModelToUpdate IssueModel Issue to update
+     * @return Mono<IssueModel>
      */
     fun updateIssue(idOfIssue: UUID, issueModelToUpdate: IssueModel): Mono<IssueModel> {
         return securityContextRepository.getAuthenticatedUser()
@@ -125,10 +124,9 @@ class IssueService(
     /**
      * Here the id and the attribute are checked and
      * then exactly these attributes are changed during the issue.
-     *
-     * @param idOfIssue id of issue
-     * @param issueAttr attribute to change the value
-     * @return if attribute was found and id is valid then returns issue as json, else null
+     * @param idOfIssue UUID Id of issue
+     * @param issueAttr Map<String, String?>? Attribute to change the value
+     * @return Mono<IssueModel>
      */
     fun changeAttrFromIssue(idOfIssue: UUID, issueAttr: Map<String, String?>?): Mono<IssueModel> {
 
@@ -166,7 +164,7 @@ class IssueService(
     }
 
     /**
-     * TODO
+     * Return a model with issue and his c
      * @param issueId UUID
      * @return Mono<IssueViewModel>
      */
