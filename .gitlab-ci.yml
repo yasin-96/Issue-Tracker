@@ -3,8 +3,7 @@ stages:
   - test
   
 build-backend: 
-  tags: 
-    - gradle
+  image: gradle
   stage: build
   script:
     - .\gradlew clean install 
