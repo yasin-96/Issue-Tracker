@@ -81,8 +81,14 @@ class UserService(
      * @return Mono<UserModel>
      */
     fun post(userModel: UserModel): Mono<UserModel> {
-        userModel.password = passwordEncoder.encode(userModel.password)
-        return userRepository.save(userModel)
+
+        return securityContextRepository.getAuthenticatedUser()
+                .filter { it.hasAdminRights() }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .flatMap {
+                    userModel.password = passwordEncoder.encode(userModel.password)
+                    userRepository.save(userModel)
+                }
     }
 
     /**

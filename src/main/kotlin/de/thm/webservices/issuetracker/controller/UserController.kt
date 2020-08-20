@@ -41,24 +41,19 @@ class UserController(
         return userService.getAll()
     }
 
-//    /**
-//     * Creates a new user
-//     *
-//     * @param userModel UserModel New user to create
-//     * @return Mono<UserModel>
-//     */
-//    @PostMapping("/user")
-//    fun post(@RequestBody userModel: UserModel?): Mono<UserModel> {
-//        if(checkNewUserModel(userModel)){
-//            return userService.checkIfUserIsAdmin()
-//                    .switchIfEmpty(Mono.error(BadRequestException()))
-//                    .flatMap {
-//                        userService.post(userModel!!)
-//                                .switchIfEmpty(Mono.error(NoContentException("User could not be created")))
-//                    }
-//        }
-//        return Mono.error(BadRequestException("Wrong id was sending. ID is not an UUIDv4"))
-//    }
+    /**
+     * Creates a new user
+     *
+     * @param userModel UserModel New user to create
+     * @return Mono<UserModel>
+     */
+    @PostMapping("/user")
+    fun post(@RequestBody userModel: UserModel): Mono<UserModel> {
+        return Mono.zip(checkNewUserModel(userModel), userService.post(userModel))
+                .filter { it.t1 }
+                .switchIfEmpty(Mono.error(BadRequestException()))
+                .map { it.t2 }
+    }
 
     /**
      * Delete one user by id

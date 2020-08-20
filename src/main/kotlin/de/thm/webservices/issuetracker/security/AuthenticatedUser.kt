@@ -56,4 +56,10 @@ class AuthenticatedUser(private val userId: String, private val roles: List<Simp
         }
     }
 
+    fun hasAdminRights(): Boolean {
+        return this.authorities.all {
+            it!!.authority == "ADMIN"
+        }
+    }
+
 }
