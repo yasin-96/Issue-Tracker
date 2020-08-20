@@ -87,17 +87,12 @@ class IssueController(
 
     /**
      * Returns all issues that a user has created
-     * @param id UUID Id of issue
+     * @param id UUID Id of owner(user)
      * @return Flux<MutableList<IssueModel>>
      */
     @GetMapping("/issue/user/{id}")
     fun issuesOfAnUser(@PathVariable id: UUID): Flux<IssueModel> {
-        return issueService.getAllIssues()
-                .switchIfEmpty(Flux.from(Mono.error(BadRequestException("Wrong data was send. Id was not an UUIDV4"))))
-                .filter {
-                    it.ownerId == id
-                }
-                .map { it }
+        return issueService.getAllIssuesFromOwnerById(id)
     }
 
     /** TODO rauswerfen

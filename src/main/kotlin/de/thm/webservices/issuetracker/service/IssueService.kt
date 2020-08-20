@@ -38,7 +38,7 @@ class IssueService(
     }
 
     /**
-     * TODO
+     * TODO raus nehmen
      * @return Flux<IssueModel>
      */
     fun getAllIssues(): Flux<IssueModel> {
@@ -154,11 +154,11 @@ class IssueService(
 
 
     /**
-     * TODO
-     * @param ownerId UUID
+     * Returns all issues based  on user id
+     * @param ownerId UUID Id of owner
      * @return Flux<IssueModel>
      */
-    fun getByOwnerId(ownerId: UUID): Flux<IssueModel> {
+    fun getAllIssuesFromOwnerById(ownerId: UUID): Flux<IssueModel> {
         return issueRepository.findByOwnerId(ownerId)
                 .switchIfEmpty(Mono.error(NotFoundException()))
     }
