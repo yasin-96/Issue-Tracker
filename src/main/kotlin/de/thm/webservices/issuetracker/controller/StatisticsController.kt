@@ -1,12 +1,12 @@
 package de.thm.webservices.issuetracker.controller
 
-import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.model.StatsModel
-import de.thm.webservices.issuetracker.repository.CommentRepository
-import de.thm.webservices.issuetracker.repository.IssueRepository
+import de.thm.webservices.issuetracker.model.event.TagStatsModel
 import de.thm.webservices.issuetracker.service.CommentService
 import de.thm.webservices.issuetracker.service.IssueService
+import de.thm.webservices.issuetracker.service.TaggingService
 import de.thm.webservices.issuetracker.service.UserService
+import kotlinx.coroutines.reactive.collect
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -19,7 +19,8 @@ import java.util.*
 class StatisticsController(
         private val commentService: CommentService,
         private val issueService: IssueService,
-        private val userService: UserService
+        private val userService: UserService,
+        var taggingService: TaggingService
 ) {
 
     @GetMapping("/_stats")
@@ -42,14 +43,26 @@ class StatisticsController(
                 }
     }
 
+    @GetMapping("/_stat/tags")
+    fun getNumberOfTaggedUsers(@RequestParam issueId: UUID): Mono<Optional<TagStatsModel>> {
+
+        return commentService.getAllCommentByIssueId(issueId)
+                .flatMap { taggingService.getNumberOfTaggedUser(it.content) }
+                .collectList()
+                .map {
+                    Optional.of(TagStatsModel(issueId, it.sum()))
+                }
+    }
+
 
     @GetMapping("/_stats/registered")
     fun getAllRegisteredUser(): Mono<Map<String, Int>> {
         return userService.getAll().collectList()
                 .map { it.count() }
-                .map{
+                .map {
                     mapOf("registeredUser" to it)
                 }
     }
 }
+
 
