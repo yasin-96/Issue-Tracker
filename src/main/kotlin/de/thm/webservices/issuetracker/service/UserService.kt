@@ -1,9 +1,6 @@
 package de.thm.webservices.issuetracker.service
 
 import de.thm.webservices.issuetracker.exception.ForbiddenException
-import de.thm.webservices.issuetracker.exception.NoContentException
-import de.thm.webservices.issuetracker.exception.NotFoundException
-import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.model.UserViewModel
 import de.thm.webservices.issuetracker.repository.CommentRepository

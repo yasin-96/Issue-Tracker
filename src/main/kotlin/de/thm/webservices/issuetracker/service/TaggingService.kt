@@ -1,11 +1,9 @@
 package de.thm.webservices.issuetracker.service
 
-import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.repository.UserRepository
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 import java.util.*
-
 
 @Service
 class TaggingService(
@@ -18,7 +16,7 @@ class TaggingService(
      * @return Mono<MutableSet<UUID>>
      */
     fun tagging(text:String) : Mono<MutableSet<UUID>> {
-        var words = text.split( " ")
+        val words = text.split( " ")
                 .filter { it.startsWith("@")}
         val matches : MutableSet<UUID> = mutableSetOf()
 

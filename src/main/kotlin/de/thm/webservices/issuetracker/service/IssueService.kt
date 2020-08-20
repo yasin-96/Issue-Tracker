@@ -3,7 +3,6 @@ package de.thm.webservices.issuetracker.service
 import de.thm.webservices.issuetracker.exception.*
 import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.model.IssueViewModel
-import de.thm.webservices.issuetracker.model.event.CreateNewComment
 import de.thm.webservices.issuetracker.model.event.CreateNewIssue
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.repository.IssueRepository
