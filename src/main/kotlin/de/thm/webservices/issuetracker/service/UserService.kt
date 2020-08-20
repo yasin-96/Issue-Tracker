@@ -44,6 +44,13 @@ class UserService(
     }
 
 
+
+    fun getIdFromUsername(name:String) : Mono<UUID>{
+        return userRepository.findByUsername(name)
+                .map { user -> user.id!!}
+    }
+
+
     /**
      * TODO
      * @param id UUID

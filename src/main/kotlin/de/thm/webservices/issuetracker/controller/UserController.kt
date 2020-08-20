@@ -19,6 +19,11 @@ class UserController(
         private val commentService: CommentService
 ) {
 
+    @GetMapping("/user/name")
+    fun getIdFromUsername(@RequestParam name:String){
+        return
+    }
+
     /**
      * Get the user information according to the id
      *
