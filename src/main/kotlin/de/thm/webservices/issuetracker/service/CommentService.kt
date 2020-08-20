@@ -49,7 +49,7 @@ class CommentService(
      */
     fun getAllCommentByIssueId(issueId: UUID): Flux<CommentModel> {
         return commentRepository.findAllByIssueId(issueId)
-                .switchIfEmpty(Mono.error(NoContentException("Id in comment for issue was not correct")))
+                .switchIfEmpty(Mono.error(NotFoundException("Id in comment for issue was not correct")))
     }
 
     /**

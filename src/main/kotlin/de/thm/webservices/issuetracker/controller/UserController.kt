@@ -7,7 +7,6 @@ import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.service.CommentService
 import de.thm.webservices.issuetracker.service.UserService
 import de.thm.webservices.issuetracker.util.checkNewUserModel
-import de.thm.webservices.issuetracker.util.checkUUID
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -27,14 +26,13 @@ class UserController(
      * @return Mono<UserModel>
      */
     @GetMapping("/user/{id}")
-    fun get(@PathVariable id: UUID?): Mono<UserModel> {
-        if(checkUUID(id)){
-            return userService.get(id!!)
-        }
-        return Mono.error(BadRequestException("Wrong id was sending. ID is not an UUIDv4"))
+    fun get(@PathVariable id: UUID): Mono<UserModel> {
+            return userService.get(id)
+                    .switchIfEmpty(Mono.error(BadRequestException("Wrong id was sending. ID is not an UUIDv4")))
     }
 
     /**
+     * TODO raus for abgabe
      * Only for testing
      * @return Flux<UserModel>
      */
@@ -69,10 +67,8 @@ class UserController(
      */
     @DeleteMapping("/user/{id}")
     fun delete(@PathVariable id: UUID): Mono<Void> {
-        if (checkUUID(id)) {
             return userService.delete(id)
-        }
-        return Mono.error(BadRequestException("Wrong id was sending. ID is not an UUIDv4"))
+                    .switchIfEmpty(Mono.error(BadRequestException("Wrong id was sending. ID is not an UUIDv4")))
     }
 
 
@@ -93,10 +89,8 @@ class UserController(
      * @return Flux<CommentModel>
      */
     @GetMapping("/user/comments/{userId}")
-    fun getAllCommentsOfAnUser(@PathVariable userId: UUID?): Flux<CommentModel> {
-        if (checkUUID(userId!!)) {
+    fun getAllCommentsOfAnUser(@PathVariable userId: UUID): Flux<CommentModel> {
             return commentService.getAllCommentsByUserId(userId)
-        }
-        return Flux.from(Mono.error(BadRequestException("That user id is not existing")))
+                    .switchIfEmpty(Flux.from(Mono.error(BadRequestException("That user id is not existing"))))
     }
 }

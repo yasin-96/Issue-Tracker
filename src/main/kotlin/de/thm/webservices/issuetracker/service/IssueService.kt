@@ -53,33 +53,27 @@ class IssueService(
      * @param newIssueModel new issue to create
      * @return if it works then returns the id, else null
      */
-    fun addNewIssue(newIssueModel: IssueModel): Mono<UUID?> {
+    fun addNewIssue(newIssueModel: IssueModel): Mono<UUID> {
 
         return securityContextRepository.getAuthenticatedUser()
-                .filter { authenticatedUser ->
-                    authenticatedUser.name == newIssueModel.ownerId.toString()
-                }
+                .filter { it.hasRightsOrIsAdmin(newIssueModel.ownerId) }
                 .switchIfEmpty(Mono.error(ForbiddenException()))
-                .flatMap { authUser ->
-
-                    if (authUser.name == newIssueModel.ownerId.toString()) {
-                        issueRepository.save(newIssueModel)
-                                .switchIfEmpty(Mono.error(NoContentException("Could not create new issue")))
-                                .zipWith(taggingService.tagging(newIssueModel.title))
-                                .doOnSuccess { tuple ->
-
-                                    tuple.t2.map { uuid ->
-                                        issueTemplate.convertAndSend(
-                                                "amq.topic",
-                                                uuid.toString() + ".news",
-                                                CreateNewIssue(tuple.t1.id!!)
-                                        )
-                                    }
-                                }
-                                .map { it.t1.id!! }
-                    } else {
-                        Mono.error(ForbiddenException())
+                .flatMap {
+                    issueRepository.save(newIssueModel)
+                            .switchIfEmpty(Mono.error(NoContentException("Could not create new issue")))
+                            .zipWith(taggingService.tagging(newIssueModel.title))
+                }
+                .doOnSuccess { tuple ->
+                    tuple.t2.map { uuid ->
+                        issueTemplate.convertAndSend(
+                                "amq.topic",
+                                uuid.toString() + ".news",
+                                CreateNewIssue(tuple.t1.id!!)
+                        )
                     }
+                }
+                .map{
+                    it.t1.id!!
                 }
     }
 

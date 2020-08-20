@@ -30,9 +30,6 @@ class SecurityConfig(
     fun springWebFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
         val patterns = arrayOf("/auth/login")
 
-        //only authenticated user can use the api
-        val authenticatedUser = arrayOf("/issue", "/comment","/_view", "/user")
-
         return http.cors().disable()
                 .exceptionHandling()
                 .authenticationEntryPoint { swe: ServerWebExchange, e: AuthenticationException? ->
@@ -48,7 +45,6 @@ class SecurityConfig(
                 .authorizeExchange()
                 .pathMatchers(*patterns).permitAll()
                 .pathMatchers(HttpMethod.OPTIONS).permitAll()
-                .pathMatchers(*authenticatedUser).authenticated()
                 .anyExchange().authenticated()
                 .and()
                 .build()

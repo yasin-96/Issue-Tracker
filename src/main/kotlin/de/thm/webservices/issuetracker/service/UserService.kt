@@ -15,7 +15,6 @@ import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.util.*
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import javax.naming.NotContextException
 
 @Service
 class UserService(
@@ -88,12 +87,7 @@ class UserService(
      */
     fun delete(id: UUID): Mono<Void> {
         return securityContextRepository.getAuthenticatedUser()
-                .filter { authenticatedUser ->
-                    authenticatedUser.name == id.toString() ||
-                    authenticatedUser.authorities.all {
-                        it!!.authority == "ADMIN"
-                    }
-                }
+                .filter { it.hasRightsOrIsAdmin(id) }
                 .switchIfEmpty(Mono.error(ForbiddenException("User can only delete his own account")))
                 .flatMap {
                     userRepository.deleteById(id)

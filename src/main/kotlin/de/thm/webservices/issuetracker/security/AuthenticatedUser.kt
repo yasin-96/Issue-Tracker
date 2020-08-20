@@ -3,6 +3,7 @@ package de.thm.webservices.issuetracker.security
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
+import java.util.*
 
 
 class AuthenticatedUser(private val userId: String, private val roles: List<SimpleGrantedAuthority?>) : Authentication {
@@ -42,6 +43,17 @@ class AuthenticatedUser(private val userId: String, private val roles: List<Simp
 
     override fun toString(): String {
         return "AuthenticatedUser(userId='$userId', roles=$roles, authenticated=$authenticated)"
+    }
+
+    /**
+     * TODO
+     * @param userIdToCheck UUID
+     * @return Boolean
+     */
+    fun hasRightsOrIsAdmin(userIdToCheck: UUID): Boolean {
+        return this.userId  == userIdToCheck.toString() || this.authorities.all {
+            it!!.authority == "ADMIN"
+        }
     }
 
 }
