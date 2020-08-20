@@ -1,6 +1,5 @@
 package de.thm.webservices.issuetracker.service
 
-import de.thm.webservices.issuetracker.config.RabbitMQConfig
 import de.thm.webservices.issuetracker.exception.*
 import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.exception.NotFoundException
@@ -8,10 +7,8 @@ import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.model.event.CreateNewComment
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.repository.IssueRepository
-import de.thm.webservices.issuetracker.security.AuthenticatedUser
 import de.thm.webservices.issuetracker.security.SecurityContextRepository
 import org.springframework.amqp.rabbit.core.RabbitTemplate
-import org.springframework.security.core.context.ReactiveSecurityContextHolder
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -32,8 +29,8 @@ class CommentService(
     /**
      * Request all comments by issue id
      *
-     * @param issueId
-     * @return
+     * @param issueId UUID Id of issue
+     * @return Flux<CommentModel>
      */
     fun getAllCommentByIssueId(issueId: UUID): Flux<CommentModel> {
         return commentRepository.findAllByIssueId(issueId)
@@ -43,8 +40,8 @@ class CommentService(
     /**
      * Create new comment for issue
      *
-     * @param commentModel comment to create
-     * @return
+     * @param commentModel CommentModel Comment to create
+     * @return Mono<CommentModel>
      */
     fun post(commentModel: CommentModel): Mono<CommentModel> {
         return securityContextRepository.getAuthenticatedUser()
@@ -76,9 +73,9 @@ class CommentService(
     /**
      * Delete only comment if current user is owner of issue or owner of comment
      *
-     * @param commentId Id of Comment
-     * @param issueId Id of Issue
-     * @return HttpStatus Code if worked 200OK, else 401
+     * @param commentId UUID Id of Comment
+     * @param issueId UUID Id of Issue
+     * @return Mono<Void>
      */
     fun deleteComment(commentId: UUID, issueId: UUID): Mono<Void> {
         return Mono.zip(
@@ -106,8 +103,17 @@ class CommentService(
                 .switchIfEmpty(Mono.error(ForbiddenException()))
                 .flatMapMany {
                     commentRepository.findAllByUserId(userId)
-                            .switchIfEmpty(Mono.error(NoContentException("User has no comments written")))
+                            .switchIfEmpty(Mono.error(NotFoundException("User has no comments written")))
                 }
+    }
+
+    /**
+     * Returns all comments written from user, searched by id
+     * @param userId UUID
+     * @return Flux<CommentModel>
+     */
+    fun getAllCommentsByUserIdForStats(userId: UUID): Flux<CommentModel> {
+        return commentRepository.findAllByUserId(userId)
     }
 
     /**

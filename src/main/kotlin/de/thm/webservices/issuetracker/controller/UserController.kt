@@ -1,7 +1,6 @@
 package de.thm.webservices.issuetracker.controller
 
 import de.thm.webservices.issuetracker.exception.BadRequestException
-import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.service.CommentService
@@ -68,17 +67,6 @@ class UserController(
     @DeleteMapping("/user/{id}")
     fun delete(@PathVariable id: UUID): Mono<Void> {
             return userService.delete(id)
-    }
-
-
-    /**
-     * Checked if user has admin role
-     *
-     * @return Mono<String>
-     */
-    @GetMapping("/user/role")
-    fun getRole(): Mono<String> {
-        return userService.checkIfUserIsAdmin()
     }
 
     /**

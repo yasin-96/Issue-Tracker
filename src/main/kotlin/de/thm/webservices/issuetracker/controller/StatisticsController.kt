@@ -1,5 +1,6 @@
 package de.thm.webservices.issuetracker.controller
 
+import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.model.StatsModel
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.repository.IssueRepository
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import reactor.kotlin.core.publisher.toFlux
 import reactor.kotlin.core.publisher.toMono
 import java.util.*
 
@@ -18,18 +18,23 @@ import java.util.*
 class StatisticsController(var commentService: CommentService,var issueService: IssueService) {
 
     @GetMapping("/_stats")
-    fun getStatsFromIds(@RequestParam userIds: List<UUID>): Flux<StatsModel> {
-        return Flux.fromIterable(userIds).
-            flatMap {
-                getStats(it)
-            }
-    }
-
-
-    fun getStats(uuid: UUID) : Flux<StatsModel>{
-        return Flux.zip(commentService.getAllCommentsByUserId(uuid).collectList(),issueService.getAllIssuesFromOwnerById(uuid).collectList())
-                .map {
-                    StatsModel(uuid,it.t1.size,it.t2.size)
+    fun getStatsFromIds(@RequestParam userIds: List<UUID>): Flux<Optional<StatsModel>> {
+        return Flux.fromIterable(userIds)
+                .flatMap { userId ->
+                    Flux.zip(
+                            issueService.getAllIssuesFromOwnerByIdForStats(userId)
+                                    .collectList(),
+                            commentService.getAllCommentsByUserIdForStats(userId)
+                                    .collectList()
+                    )
+                            .map {
+                                Optional.of(StatsModel(
+                                        userId,
+                                        it.t1.count(),
+                                        it.t2.count()
+                                ))
+                            }
                 }
     }
-    }
+}
+
