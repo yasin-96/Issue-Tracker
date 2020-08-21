@@ -1,6 +1,7 @@
 package de.thm.webservices.issuetracker.controller
 
 import de.thm.webservices.issuetracker.model.StatsModel
+import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.model.event.TagStatsModel
 import de.thm.webservices.issuetracker.service.CommentService
 import de.thm.webservices.issuetracker.service.IssueService
@@ -43,22 +44,27 @@ class StatisticsController(
                 }
     }
 
+    // TODO hier die ganzen listen richtig durch gehen und zählen
     @GetMapping("/_stat/tags")
-    fun getNumberOfTaggedUsers(@RequestParam issueId: UUID): Mono<Optional<TagStatsModel>> {
-
-        return commentService.getAllCommentByIssueId(issueId)
-                .flatMap { taggingService.getNumberOfTaggedUser(it.content) }
-                .collectList()
+    fun getNumberOfTaggedUsers(@RequestParam issueId: UUID): Mono<Optional<List<Pair<UUID, Set<Set<UserModel>>>>>> {
+        return commentService.getAllCommentByIssueId(issueId).collectList()
+                .flatMap { taggingService.getNumberOfTaggedUser(it).collectList()}
                 .map {
-                    Optional.of(TagStatsModel(issueId, it.sum()))
+                    it.map {
+                        it.toSet()
+                    }.toSet()
+                }.map {
+                    Optional.of(
+                            listOf(
+                                    issueId to it
+                            ))
                 }
     }
 
 
     @GetMapping("/_stats/registered")
     fun getAllRegisteredUser(): Mono<Map<String, Int>> {
-        return userService.getAll().collectList()
-                .map { it.count() }
+        return userService.getNumberOfRegistertedUsers()
                 .map {
                     mapOf("registeredUser" to it)
                 }

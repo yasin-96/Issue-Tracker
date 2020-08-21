@@ -60,12 +60,15 @@ class UserService(
      * TODO muss raus
      * @return Flux<UserModel>
      */
-    fun getAll(): Flux<UserModel> {
+    fun getNumberOfRegistertedUsers(): Mono<Int> {
         return securityContextRepository.getAuthenticatedUser()
                 .filter { it.hasAdminRights() }
                 .switchIfEmpty(Mono.error(ForbiddenException()))
                 .flatMapMany {
                     userRepository.findAll()
+                }.collectList()
+                .map {
+                    it.count()
                 }
     }
 
