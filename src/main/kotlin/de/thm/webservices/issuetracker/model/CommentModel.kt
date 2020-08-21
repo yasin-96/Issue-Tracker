@@ -13,5 +13,9 @@ data class CommentModel(
         var userId: UUID,
         var issueId: UUID
 ) {
-    val creation: String = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+
+    var creation: String = ""
+    init {
+        creation = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+    }
 }

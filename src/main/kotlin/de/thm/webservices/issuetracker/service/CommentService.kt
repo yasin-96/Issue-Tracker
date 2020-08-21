@@ -103,8 +103,17 @@ class CommentService(
                 .switchIfEmpty(Mono.error(ForbiddenException()))
                 .flatMapMany {
                     commentRepository.findAllByUserId(userId)
-                            .switchIfEmpty(Mono.error(NoContentException("User has no comments written")))
+                            .switchIfEmpty(Mono.error(NotFoundException("User has no comments written")))
                 }
+    }
+
+    /**
+     * Returns all comments written from user, searched by id
+     * @param userId UUID
+     * @return Flux<CommentModel>
+     */
+    fun getAllCommentsByUserIdForStats(userId: UUID): Flux<CommentModel> {
+        return commentRepository.findAllByUserId(userId)
     }
 
     /**

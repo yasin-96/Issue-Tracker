@@ -18,6 +18,11 @@ class UserController(
         private val commentService: CommentService
 ) {
 
+    @GetMapping("/user/name")
+    fun getIdFromUsername(@RequestParam name:String) : Mono<UUID>{
+        return userService.getIdFromUsername(name)
+    }
+
     /**
      * Get the user information according to the id
      *
@@ -28,16 +33,6 @@ class UserController(
     fun get(@PathVariable id: UUID): Mono<UserModel> {
             return userService.get(id)
                     .switchIfEmpty(Mono.error(BadRequestException("Wrong id was sending. ID is not an UUIDv4")))
-    }
-
-    /**
-     * TODO raus for abgabe
-     * Only for testing
-     * @return Flux<UserModel>
-     */
-    @GetMapping("/user/all")
-    fun getAll(): Flux<UserModel> {
-        return userService.getAll()
     }
 
     /**

@@ -32,4 +32,10 @@ class TaggingService(
                     matches
                 }
     }
+
+    fun getNumberOfTaggedUser(textWithTags: String): Mono<Int> {
+        return tagging(textWithTags).map {
+            it.count()
+        }
+    }
 }

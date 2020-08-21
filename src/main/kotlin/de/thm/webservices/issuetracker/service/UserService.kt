@@ -1,6 +1,7 @@
 package de.thm.webservices.issuetracker.service
 
 import de.thm.webservices.issuetracker.exception.ForbiddenException
+import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.model.UserViewModel
 import de.thm.webservices.issuetracker.repository.CommentRepository
@@ -37,11 +38,35 @@ class UserService(
     }
 
     /**
+     *
+     * @param name String
+     * @return Mono<UUID>
+     */
+    fun getIdFromUsername(name:String) : Mono<UUID>{
+        return securityContextRepository.getAuthenticatedUser()
+                .filter { it.hasAdminRights() }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .flatMap {
+                    userRepository.findByUsername(name)
+                            .map { user -> user.id!!}
+                            .switchIfEmpty(Mono.error(NotFoundException("The username you entered is not existing")))
+                }
+    }
+
+
+
+
+    /**
      * TODO muss raus
      * @return Flux<UserModel>
      */
     fun getAll(): Flux<UserModel> {
-        return userRepository.findAll()
+        return securityContextRepository.getAuthenticatedUser()
+                .filter { it.hasAdminRights() }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .flatMapMany {
+                    userRepository.findAll()
+                }
     }
 
     /**

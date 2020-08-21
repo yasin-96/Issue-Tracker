@@ -95,7 +95,6 @@ class IssueService(
                 .switchIfEmpty(Mono.error(ForbiddenException("You are not the owner of the issue")))
                 .flatMap {
                     issueRepository.deleteById(issueId)
-                            .switchIfEmpty(Mono.error(NoContentException("Could not delete issue")))
                 }
     }
 
@@ -162,6 +161,16 @@ class IssueService(
         return issueRepository.findByOwnerId(ownerId)
                 .switchIfEmpty(Mono.error(NotFoundException()))
     }
+
+    /**
+     * Returns all issues based  on user id
+     * @param ownerId UUID Id of owner
+     * @return Flux<IssueModel>
+     */
+    fun getAllIssuesFromOwnerByIdForStats(ownerId: UUID): Flux<IssueModel> {
+        return issueRepository.findByOwnerId(ownerId)
+    }
+
 
     /**
      * Return a model with issue and his c
