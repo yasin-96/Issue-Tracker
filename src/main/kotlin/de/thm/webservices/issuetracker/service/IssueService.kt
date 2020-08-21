@@ -89,8 +89,8 @@ class IssueService(
         return securityContextRepository.getAuthenticatedUser()
                 .flatMap { authUser ->
                     getIssueById(issueId)
-                        .switchIfEmpty(Mono.error(NotFoundException("")))
-                        .filter { authUser.hasRightsOrIsAdmin(it.ownerId)}
+                        //.switchIfEmpty(Mono.error(NotFoundException("")))
+                        //.filter { authUser.hasRightsOrIsAdmin(it.ownerId)}
                 }
                 .switchIfEmpty(Mono.error(ForbiddenException("You are not the owner of the issue")))
                 .flatMap {
