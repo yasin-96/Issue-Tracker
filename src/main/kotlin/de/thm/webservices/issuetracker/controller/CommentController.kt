@@ -4,6 +4,7 @@ import de.thm.webservices.issuetracker.exception.BadRequestException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.service.CommentService
 import de.thm.webservices.issuetracker.util.checkNewCommentModel
+import org.springframework.boot.actuate.endpoint.web.annotation.WebEndpoint
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -17,7 +18,7 @@ class CommentController(
     /**
      * Returns the comments based on the Id
      *
-     * @param id UUID? Id of issue
+     * @param id UUID Id of issue
      * @return Flux<CommentModel>
      */
     @GetMapping("/comments/issue/{id}")

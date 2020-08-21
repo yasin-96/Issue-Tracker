@@ -95,7 +95,6 @@ class IssueService(
                 .switchIfEmpty(Mono.error(ForbiddenException("You are not the owner of the issue")))
                 .flatMap {
                     issueRepository.deleteById(issueId)
-                            .switchIfEmpty(Mono.error(NoContentException("Could not delete issue")))
                 }
     }
 

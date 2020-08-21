@@ -1,6 +1,7 @@
 package de.thm.webservices.issuetracker.controller
 
 import de.thm.webservices.issuetracker.service.AuthenticationService
+import org.springframework.boot.actuate.endpoint.web.annotation.WebEndpoint
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController

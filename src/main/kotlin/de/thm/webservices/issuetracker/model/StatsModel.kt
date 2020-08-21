@@ -4,6 +4,6 @@ import java.util.*
 
 data class StatsModel (
         val userId: UUID,
-        var numberOfIssues : Int,
-        var numberOfComments : Int
+        var numberOfIssues: Int,
+        var numberOfComments: Int
 )
