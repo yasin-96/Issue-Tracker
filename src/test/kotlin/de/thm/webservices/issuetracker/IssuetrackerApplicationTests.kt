@@ -8,6 +8,7 @@ class IssuetrackerApplicationTests {
 
 	@Test
 	fun contextLoads() {
+		print("hallo")
 	}
 
 }
