@@ -1,7 +1,5 @@
 # HU2 Gruppenarbeit
 
-
-
 ## Run App
 Wenn *gradle* global installiert ist:
 ```
