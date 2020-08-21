@@ -61,7 +61,12 @@ class UserService(
      * @return Flux<UserModel>
      */
     fun getAll(): Flux<UserModel> {
-        return userRepository.findAll()
+        return securityContextRepository.getAuthenticatedUser()
+                .filter { it.hasAdminRights() }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .flatMapMany {
+                    userRepository.findAll()
+                }
     }
 
     /**
