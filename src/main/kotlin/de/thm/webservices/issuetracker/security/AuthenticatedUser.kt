@@ -46,12 +46,22 @@ class AuthenticatedUser(private val userId: String, private val roles: List<Simp
     }
 
     /**
-     * TODO
+     * Check if user is the owner of issue/comment or is admin
      * @param userIdToCheck UUID
      * @return Boolean
      */
     fun hasRightsOrIsAdmin(userIdToCheck: UUID): Boolean {
         return this.userId  == userIdToCheck.toString() || this.authorities.all {
+            it!!.authority == "ADMIN"
+        }
+    }
+
+    /**
+     * Check if current user has admin rights
+     * @return Boolean
+     */
+    fun hasAdminRights(): Boolean {
+        return this.authorities.all {
             it!!.authority == "ADMIN"
         }
     }

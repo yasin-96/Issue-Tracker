@@ -3,8 +3,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	id("org.springframework.boot") version "2.3.2.RELEASE"
 	id("io.spring.dependency-management") version "1.0.9.RELEASE"
+	id("org.flywaydb.flyway") version "6.5.5"
 	kotlin("jvm") version "1.3.72"
 	kotlin("plugin.spring") version "1.3.72"
+
 }
 
 group = "de.thm.webservices"
@@ -16,6 +18,7 @@ repositories {
 }
 
 dependencies {
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation ("org.springframework.boot:spring-boot-starter-amqp")
 	testImplementation ("org.springframework.amqp:spring-rabbit-test")
 	implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")

@@ -1,6 +1,5 @@
 package de.thm.webservices.issuetracker.controller
 
-import de.thm.webservices.issuetracker.exception.BadRequestException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.UserViewModel
 import de.thm.webservices.issuetracker.service.UserService
@@ -23,8 +22,8 @@ class UserViewController(
      * @return Mono<Optional<UserViewModel>> Fetched data
      */
     @GetMapping("/_view/userdata/{id}")
-    fun getUserData(@PathVariable id: UUID?): Mono<Optional<UserViewModel>> {
-            return userService.getAllDataFromUserId(id!!)
+    fun getUserData(@PathVariable id: UUID): Mono<Optional<UserViewModel>> {
+            return userService.getAllDataFromUserId(id)
                     .switchIfEmpty(Mono.error(NotFoundException()))
     }
 }

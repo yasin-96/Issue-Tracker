@@ -1,6 +1,5 @@
 package de.thm.webservices.issuetracker.service
 
-import de.thm.webservices.issuetracker.exception.BadRequestException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.repository.UserRepository

@@ -3,7 +3,6 @@ package de.thm.webservices.issuetracker.service
 import de.thm.webservices.issuetracker.exception.*
 import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.model.IssueViewModel
-import de.thm.webservices.issuetracker.model.event.CreateNewComment
 import de.thm.webservices.issuetracker.model.event.CreateNewIssue
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.repository.IssueRepository
@@ -23,14 +22,16 @@ class IssueService(
         private val taggingService: TaggingService,
         private val securityContextRepository: SecurityContextRepository
 ) {
+    private val topicPath = "amq.topic"
+    private val postFixNews = ".news"
 
     /**
      * Here the ID is checked again and if the validation has run through and
      * everything has worked, then the database is checked with
      * the id to see if an issue could be found
      *
-     * @param idFromIssue UUID from issue
-     * @return if found returns issue, else null
+     * @param idFromIssue UUID Id of issue
+     * @return Mono<IssueModel>
      */
     fun getIssueById(idFromIssue: UUID): Mono<IssueModel> {
         return issueRepository.findById(idFromIssue)
@@ -50,8 +51,8 @@ class IssueService(
      * Here, after the issue has been reviewed again,
      * the data is stored in the database.
      *
-     * @param newIssueModel new issue to create
-     * @return if it works then returns the id, else null
+     * @param newIssueModel IssueModel New issue to create
+     * @return Mono<UUID>
      */
     fun addNewIssue(newIssueModel: IssueModel): Mono<UUID> {
 
@@ -66,8 +67,8 @@ class IssueService(
                 .doOnSuccess { tuple ->
                     tuple.t2.map { uuid ->
                         issueTemplate.convertAndSend(
-                                "amq.topic",
-                                uuid.toString() + ".news",
+                                topicPath,
+                                uuid.toString() + postFixNews,
                                 CreateNewIssue(tuple.t1.id!!)
                         )
                     }
@@ -100,9 +101,9 @@ class IssueService(
     /**
      * Here, after the issue has been checked again,
      * and then the existing issue is updated in the database
-     *
-     * @param issueModelToUpdate issue to update
-     * @return if it works issue as json, else null
+     * @param idOfIssue UUID  Id of issue
+     * @param issueModelToUpdate IssueModel Issue to update
+     * @return Mono<IssueModel>
      */
     fun updateIssue(idOfIssue: UUID, issueModelToUpdate: IssueModel): Mono<IssueModel> {
         return securityContextRepository.getAuthenticatedUser()
@@ -122,10 +123,9 @@ class IssueService(
     /**
      * Here the id and the attribute are checked and
      * then exactly these attributes are changed during the issue.
-     *
-     * @param idOfIssue id of issue
-     * @param issueAttr attribute to change the value
-     * @return if attribute was found and id is valid then returns issue as json, else null
+     * @param idOfIssue UUID Id of issue
+     * @param issueAttr Map<String, String?>? Attribute to change the value
+     * @return Mono<IssueModel>
      */
     fun changeAttrFromIssue(idOfIssue: UUID, issueAttr: Map<String, String?>?): Mono<IssueModel> {
 
@@ -140,7 +140,7 @@ class IssueService(
                     for (k in issueAttr!!) {
                         when (k.key) {
                             "title" -> issue.title = k.value ?: issue.title
-                            "ownerId" -> issue.ownerId = UUID.fromString(k.value) ?: issue.ownerId
+                            "deadline" -> issue.deadline = k.value ?: issue.deadline
                         }
                     }
                     issue
@@ -162,20 +162,23 @@ class IssueService(
                 .switchIfEmpty(Mono.error(NotFoundException()))
     }
 
+    /**
+     * Returns all issues based  on user id
+     * @param ownerId UUID Id of owner
+     * @return Flux<IssueModel>
+     */
+    fun getAllIssuesFromOwnerByIdForStats(ownerId: UUID): Flux<IssueModel> {
+        return issueRepository.findByOwnerId(ownerId)
+    }
+
 
     /**
-     * TODO
+     * Return a model with issue and his c
      * @param issueId UUID
      * @return Mono<IssueViewModel>
      */
     fun getIssueWithAllComments(issueId: UUID): Mono<IssueViewModel> {
-        val issue = issueRepository.findById(issueId)
-        val comments = commentRepository.findAllByIssueId(issueId).collectList()
-                .switchIfEmpty(Mono.error(NoContentException("Id in comment for issue was not correct")))
-
-        return Mono.zip(issue, comments)
-                .map {
-                    IssueViewModel(it.t1, it.t2)
-                }
+        return Mono.zip(issueRepository.findById(issueId), commentRepository.findAllByIssueId(issueId).collectList())
+                .map { IssueViewModel(it.t1, it.t2) }
     }
 }

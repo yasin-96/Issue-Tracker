@@ -1,9 +1,7 @@
 package de.thm.webservices.issuetracker.service
 
 import de.thm.webservices.issuetracker.exception.ForbiddenException
-import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.exception.NotFoundException
-import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.model.UserViewModel
 import de.thm.webservices.issuetracker.repository.CommentRepository
@@ -26,63 +24,69 @@ class UserService(
 ) {
 
     /**
-     * TODO
-     * @return Mono<String>
-     */
-    fun checkIfUserIsAdmin(): Mono<String> {
-        return securityContextRepository.getAuthenticatedUser()
-                .filter { authenticatedUser ->
-                    authenticatedUser.authorities.all {
-                        it!!.authority == "ADMIN"
-                    }
-                }
-                .switchIfEmpty(Mono.error(ForbiddenException()))
-                .map { authenticatedUser ->
-                    authenticatedUser.authorities.toString()
-                }
-
-    }
-
-
-    /**
-     * TODO
-     * @param id UUID
+     * Return user information based on id
+     * @param id UUID Id of user
      * @return Mono<UserModel>
      */
     fun get(id: UUID): Mono<UserModel> {
-        return userRepository.findById(id)
+        return securityContextRepository.getAuthenticatedUser()
+                .filter { it.hasRightsOrIsAdmin(id) }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .flatMap {
+                    userRepository.findById(id)
+                }
     }
 
     /**
-     * TODO
+     *
+     * @param name String
+     * @return Mono<UUID>
+     */
+    fun getIdFromUsername(name:String) : Mono<UUID>{
+        return securityContextRepository.getAuthenticatedUser()
+                .filter { it.hasAdminRights() }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .flatMap {
+                    userRepository.findByUsername(name)
+                            .map { user -> user.id!!}
+                            .switchIfEmpty(Mono.error(NotFoundException("The username you entered is not existing")))
+                }
+    }
+
+
+
+
+    /**
+     * TODO muss raus
      * @return Flux<UserModel>
      */
     fun getAll(): Flux<UserModel> {
-        return userRepository.findAll()
+        return securityContextRepository.getAuthenticatedUser()
+                .filter { it.hasAdminRights() }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .flatMapMany {
+                    userRepository.findAll()
+                }
     }
 
     /**
-     * TODO
-     * @param username String
-     * @return Mono<UserModel>
-     */
-    fun getByUsername(username: String): Mono<UserModel> {
-        return userRepository.findByUsername(username)
-    }
-
-    /**
-     * TODO
-     * @param userModel UserModel
+     * Create new user if the current loggedin user has rights
+     * @param userModel UserModel Data of new user
      * @return Mono<UserModel>
      */
     fun post(userModel: UserModel): Mono<UserModel> {
-        userModel.password = passwordEncoder.encode(userModel.password)
-        return userRepository.save(userModel)
+        return securityContextRepository.getAuthenticatedUser()
+                .filter { it.hasAdminRights() }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .flatMap {
+                    userModel.password = passwordEncoder.encode(userModel.password)
+                    userRepository.save(userModel)
+                }
     }
 
     /**
-     * TODO
-     * @param id UUID
+     * Delete one user based on the id
+     * @param id UUID Id of user
      * @return Mono<Void>
      */
     fun delete(id: UUID): Mono<Void> {
@@ -95,37 +99,20 @@ class UserService(
     }
 
     /**
-     * TODO
-     * @param userId UUID
-     * @return Flux<CommentModel>
-     */
-    fun getAllCommentsByUserId(userId: UUID): Flux<CommentModel> {
-        return get(userId)
-                .switchIfEmpty(Mono.error(NotFoundException("User not exist")))
-                .flatMapMany {
-                    commentRepository.findAllByUserId(userId)
-                            .switchIfEmpty(Mono.error(NoContentException("There are no comments availiable")))
-                }
-    }
-
-    /**
-     * TODO
-     * @param userId UUID
+     * Get all written issues and comments from user
+     * @param userId UUID Id of user
      * @return Mono<UserViewModel>
      */
     fun getAllDataFromUserId(userId: UUID): Mono<Optional<UserViewModel>> {
-
-        val issueCreatedByUser = issueRepository.findByOwnerId(userId)
-                .collectList()
-
-        val commentsCreatedByUser = commentRepository.findAllByUserId(userId)
-                .collectList()
-
-        return Mono.zip(issueCreatedByUser, commentsCreatedByUser)
-                .map {
-                    Optional.of(UserViewModel(it.t1, it.t2))
+        return Mono.zip(
+                securityContextRepository.getAuthenticatedUser(),
+                issueRepository.findByOwnerId(userId).collectList(),
+                commentRepository.findAllByUserId(userId).collectList()
+        )
+                .filter {
+                    it.t1.hasRightsOrIsAdmin(userId)
                 }
+                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .map { Optional.of(UserViewModel(it.t2, it.t3)) }
     }
-
-
 }

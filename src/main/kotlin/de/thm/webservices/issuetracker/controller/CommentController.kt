@@ -4,6 +4,7 @@ import de.thm.webservices.issuetracker.exception.BadRequestException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.service.CommentService
 import de.thm.webservices.issuetracker.util.checkNewCommentModel
+import org.springframework.boot.actuate.endpoint.web.annotation.WebEndpoint
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -17,7 +18,7 @@ class CommentController(
     /**
      * Returns the comments based on the Id
      *
-     * @param id UUID? Id of issue
+     * @param id UUID Id of issue
      * @return Flux<CommentModel>
      */
     @GetMapping("/comments/issue/{id}")
@@ -32,13 +33,10 @@ class CommentController(
      * @return Mono<CommentModel>
      */
     @PostMapping("/comment")
-    fun addNewComment(@RequestBody commentModel: CommentModel?): Mono<CommentModel> {
-
-        //TODO
-        if(checkNewCommentModel(commentModel)){
-            return commentService.post(commentModel!!)
-        }
-        return Mono.error(BadRequestException())
+    fun addNewComment(@RequestBody commentModel: CommentModel): Mono<CommentModel> {
+        return Mono.zip(checkNewCommentModel(commentModel), commentService.post(commentModel))
+                .switchIfEmpty(Mono.error(BadRequestException()))
+                .map { it.t2 }
     }
 
     /**
@@ -51,17 +49,6 @@ class CommentController(
     @DeleteMapping("/comment")
     fun deleteComment(@RequestParam cId: UUID, @RequestParam iId: UUID): Mono<Void> {
         return commentService.deleteComment(cId, iId)
-    }
-
-    /**
-     * TODO raus vor der abgabe
-     * Only for testing
-     * @param id UUID? Id of comment
-     * @return Mono<CommentModel>
-     */
-    @GetMapping("/comment/{id}")
-    fun getOneComment(@PathVariable id: UUID): Mono<CommentModel> {
-            return commentService.getCommentById(id)
     }
 
     /**

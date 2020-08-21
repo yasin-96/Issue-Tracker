@@ -1,7 +1,5 @@
 package de.thm.webservices.issuetracker.controller
 
-import de.thm.webservices.issuetracker.model.CommentModel
-import de.thm.webservices.issuetracker.model.IssueModel
 import de.thm.webservices.issuetracker.model.IssueViewModel
 import de.thm.webservices.issuetracker.service.IssueService
 import org.springframework.web.bind.annotation.GetMapping
@@ -24,11 +22,10 @@ class IssueViewController(
      */
     @GetMapping("/_view/issueboard")
     fun getIssueData(@RequestParam issues: List<UUID>): Flux<Optional<IssueViewModel>> {
-
         return Flux.fromIterable(issues)
                 .flatMap {
                     issueService.getIssueWithAllComments(it)
-                            .map { Optional.of(it) }
+                            .map { uuid -> Optional.of(uuid) }
                             .switchIfEmpty(Mono.just(Optional.empty()))
                 }
     }
