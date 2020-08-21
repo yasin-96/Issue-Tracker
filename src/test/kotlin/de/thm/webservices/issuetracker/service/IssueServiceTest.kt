@@ -1,6 +1,5 @@
 package de.thm.webservices.issuetracker.service
 
-import de.thm.webservices.issuetracker.exception.ForbiddenException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.model.IssueModel
@@ -11,6 +10,7 @@ import de.thm.webservices.issuetracker.security.AuthenticatedUser
 import de.thm.webservices.issuetracker.security.SecurityContextRepository
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.BDDMockito.any
 import org.mockito.BDDMockito.given
 import org.mockito.Mock
 import org.mockito.Mockito
@@ -169,10 +169,10 @@ class IssueServiceTest(
 
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.just(authUser))
         given(issueRepository.findById(toSaveIssue.id!!)).willReturn(Mono.just(toSaveIssue))
-        given(issueRepository.save(changedIssue)).willReturn(Mono.just(changedIssue))
+        given(issueRepository.save(any(IssueModel::class.java))).willReturn(Mono.just(changedIssue))
 
         issueService.changeAttrFromIssue(toSaveIssue.id!!, myChanges).subscribe{
-            Mockito.verify(issueRepository).save(changedIssue)
+            Mockito.verify(issueRepository).save(toSaveIssue)
             assert(toSaveIssue.id == it.id)
             assert(newTitle == it.title)
             assert(UUID.fromString(otherUserId) == it.ownerId)
@@ -215,9 +215,9 @@ class IssueServiceTest(
         val commentContent2 = "content2"
         val commentContent3 = "content3"
 
-        val comment1 = CommentModel(UUID.randomUUID(),commentContent1, issue1.id, testOwnerID)
-        val comment2 = CommentModel(UUID.randomUUID(),commentContent2, issue1.id, testOwnerID)
-        val comment3 = CommentModel(UUID.randomUUID(),commentContent3, issue1.id, testOwnerID)
+        val comment1 = CommentModel(UUID.randomUUID(),commentContent1, issue1.id!!, testOwnerID)
+        val comment2 = CommentModel(UUID.randomUUID(),commentContent2, issue1.id!!, testOwnerID)
+        val comment3 = CommentModel(UUID.randomUUID(),commentContent3, issue1.id!!, testOwnerID)
 
         val myComments = mutableListOf(comment1, comment2, comment3)
 
