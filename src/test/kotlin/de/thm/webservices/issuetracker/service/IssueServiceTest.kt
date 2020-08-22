@@ -1,5 +1,6 @@
 package de.thm.webservices.issuetracker.service
 
+import de.thm.webservices.issuetracker.exception.ForbiddenException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.model.IssueModel
@@ -43,7 +44,7 @@ class IssueServiceTest(
     }
 
     val authUser= AuthenticatedUser(
-            testUUID.toString(),
+            testUserId,
             listOf()
     )
 
@@ -106,10 +107,9 @@ class IssueServiceTest(
 
         issueService.deleteIssue(testUUID)
                 .onErrorResume { exception ->
-                    assert(exception is IllegalAccessError)
+                    assert(exception is ForbiddenException)
                     Mono.empty()
-                }.subscribe(
-                )
+                }.subscribe()
     }
 
     @Test

@@ -6,11 +6,14 @@ import de.thm.webservices.issuetracker.model.IssueViewModel
 import de.thm.webservices.issuetracker.model.event.CreateNewIssue
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.repository.IssueRepository
+import de.thm.webservices.issuetracker.security.AuthenticatedUser
 import de.thm.webservices.issuetracker.security.SecurityContextRepository
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.util.function.Tuple2
 import java.util.*
 
 
@@ -87,10 +90,10 @@ class IssueService(
      */
     fun deleteIssue(issueId: UUID): Mono<Void> {
         return securityContextRepository.getAuthenticatedUser()
-                .flatMap { authUser ->
-                    getIssueById(issueId)
-                        //.switchIfEmpty(Mono.error(NotFoundException("")))
-                        //.filter { authUser.hasRightsOrIsAdmin(it.ownerId)}
+                .zipWith(issueRepository.findById(issueId).switchIfEmpty(Mono.error(NotFoundException())))
+                .filter { tuple2: Tuple2<AuthenticatedUser, IssueModel> ->
+                    tuple2.t1.authorities.contains(SimpleGrantedAuthority("ADMIN"))
+                            || tuple2.t2.ownerId.toString() == tuple2.t1.name
                 }
                 .switchIfEmpty(Mono.error(ForbiddenException("You are not the owner of the issue")))
                 .flatMap {
