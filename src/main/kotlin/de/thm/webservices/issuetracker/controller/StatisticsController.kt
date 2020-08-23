@@ -44,21 +44,12 @@ class StatisticsController(
                 }
     }
 
-    // TODO hier die ganzen listen richtig durch gehen und zählen
     @GetMapping("/_stat/tags")
-    fun getNumberOfTaggedUsers(@RequestParam issueId: UUID): Mono<Optional<List<Pair<UUID, Set<Set<UserModel>>>>>> {
+    fun getNumberOfTaggedUsers(@RequestParam issueId: UUID): Mono<Optional<TagStatsModel>> {
         return commentService.getAllCommentByIssueId(issueId).collectList()
-                .flatMap { taggingService.getNumberOfTaggedUser(it).collectList()}
+                .flatMap { taggingService.getNumberOfTaggedUser(it)}
                 .map {
-                    it.map {
-                        it.toSet()
-                    }.toSet()
-                }.map {
-                    Optional.of(
-                            listOf(
-                                    issueId to it
-                            ))
-                }
+                    Optional.of( TagStatsModel(issueId, it.count())) }
     }
 
 

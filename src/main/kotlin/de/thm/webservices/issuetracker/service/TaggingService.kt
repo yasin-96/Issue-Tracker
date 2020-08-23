@@ -38,25 +38,21 @@ class TaggingService(
 
     fun taggingV2(text: String): Mono<List<UserModel>> {
         val words = text.split(" ")
-                .filter { it.startsWith("@") }
-                .toSet()
-                .map { it.substring(1) }
-                .toString()
+                .filter { it.startsWith("@") }.toSet()
+                .map { it.substring(1) }.toString()
 
         return userRepository.findAll().collectList()
-                .map { listOfUser ->
-                    listOfUser.filter { user ->
-                       words.contains(user.username)
-                    }
-                }
+                .map { listOfUser -> listOfUser.filter { user -> words.contains(user.username) } }
     }
 
 
-    fun getNumberOfTaggedUser(comments: List<CommentModel>): Flux<List<UserModel>> {
-
+    fun getNumberOfTaggedUser(comments: List<CommentModel>): Mono<Set<UserModel>> {
         return Flux.fromIterable(comments)
-                .flatMap {
-                    taggingV2(it.content)
+                .flatMap { taggingV2(it.content) }
+                .map { list -> list.toSet() }.collectList()
+                .map {
+                    it.flatMap { setOfUser -> setOfUser.map { user -> user }
+                    }.toSet()
                 }
     }
 }
