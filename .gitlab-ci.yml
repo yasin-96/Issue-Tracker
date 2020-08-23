@@ -1,10 +1,9 @@
 stages:
   - build
-  - test
   
 build-backend: 
   tags: 
-    - java
+    - gradle
   stage: build
   script:
     - gradle clean install 
