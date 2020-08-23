@@ -15,7 +15,8 @@ build-backend:
     - java
   stage: build
   script:
-    - ./gradlew clean install 
+    - ./gradlew clean
+    - ./gradlew build
   artifacts:
     paths: 
       - backend/build/**
