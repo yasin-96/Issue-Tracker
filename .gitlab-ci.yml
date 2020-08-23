@@ -3,12 +3,12 @@ stages:
   - build
 
 
-test-backend: 
+test-backend:
   tags: 
     - java
   stage: test
   script:
-    - ./gradlew test 
+    - ./gradlew :test
   
 build-backend: 
   tags: 
