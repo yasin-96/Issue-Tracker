@@ -50,14 +50,4 @@ class CommentController(
     fun deleteComment(@RequestParam cId: UUID, @RequestParam iId: UUID): Mono<Void> {
         return commentService.deleteComment(cId, iId)
     }
-
-    /**
-     * TODO raus vor der abgabe
-     * Only for testing
-     * @return Flux<CommentModel>
-     */
-    @GetMapping("/comment/allcomments")
-    fun getAllComment(): Flux<CommentModel> {
-        return commentService.getAll()
-    }
 }

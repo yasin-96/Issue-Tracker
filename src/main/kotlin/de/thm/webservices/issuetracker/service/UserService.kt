@@ -115,7 +115,7 @@ class UserService(
                 .filter {
                     it.t1.hasRightsOrIsAdmin(userId)
                 }
-                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .switchIfEmpty(Mono.error(ForbiddenException("You do not have the authorization to read the user's data according to the id")))
                 .map { Optional.of(UserViewModel(it.t2, it.t3)) }
     }
 }

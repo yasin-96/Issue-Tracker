@@ -34,18 +34,10 @@ class IssueService(
      * @return Mono<IssueModel>
      */
     fun getIssueById(idFromIssue: UUID): Mono<IssueModel> {
+        //TODO user prüfen??
         return issueRepository.findById(idFromIssue)
                 .switchIfEmpty(Mono.error(NotFoundException("Id not found")))
     }
-
-    /**
-     * TODO raus nehmen
-     * @return Flux<IssueModel>
-     */
-    fun getAllIssues(): Flux<IssueModel> {
-        return issueRepository.findAll()
-    }
-
 
     /**
      * Here, after the issue has been reviewed again,
@@ -158,6 +150,7 @@ class IssueService(
      * @return Flux<IssueModel>
      */
     fun getAllIssuesFromOwnerById(ownerId: UUID): Flux<IssueModel> {
+        //TODO user prüfen??
         return issueRepository.findByOwnerId(ownerId)
                 .switchIfEmpty(Mono.error(NotFoundException()))
     }
@@ -168,6 +161,7 @@ class IssueService(
      * @return Flux<IssueModel>
      */
     fun getAllIssuesFromOwnerByIdForStats(ownerId: UUID): Flux<IssueModel> {
+        //TODO user prüfen??
         return issueRepository.findByOwnerId(ownerId)
     }
 
@@ -178,6 +172,7 @@ class IssueService(
      * @return Mono<IssueViewModel>
      */
     fun getIssueWithAllComments(issueId: UUID): Mono<IssueViewModel> {
+        //TODO user prüfen??
         return Mono.zip(issueRepository.findById(issueId), commentRepository.findAllByIssueId(issueId).collectList())
                 .map { IssueViewModel(it.t1, it.t2) }
     }

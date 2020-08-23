@@ -45,7 +45,7 @@ class UserController(
     fun post(@RequestBody userModel: UserModel): Mono<UserModel> {
         return Mono.zip(checkNewUserModel(userModel), userService.post(userModel))
                 .filter { it.t1 }
-                .switchIfEmpty(Mono.error(BadRequestException()))
+                .switchIfEmpty(Mono.error(BadRequestException("The transferred data are not valid")))
                 .map { it.t2 }
     }
 
