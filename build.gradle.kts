@@ -18,6 +18,8 @@ repositories {
 }
 
 dependencies {
+	implementation("org.flywaydb:flyway-core")
+	implementation("org.postgresql:postgresql")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation ("org.springframework.boot:spring-boot-starter-amqp")
 	testImplementation ("org.springframework.amqp:spring-rabbit-test")
@@ -33,6 +35,7 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt:0.9.0")
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("io.r2dbc:r2dbc-h2")
+	runtimeOnly("io.r2dbc:r2dbc-postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}
