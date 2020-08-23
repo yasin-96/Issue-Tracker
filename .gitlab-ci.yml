@@ -8,7 +8,7 @@ test-backend:
     - java
   stage: test
   script:
-    - ./gradlew :test
+    - ./gradlew test -info
   
 build-backend: 
   tags: 
