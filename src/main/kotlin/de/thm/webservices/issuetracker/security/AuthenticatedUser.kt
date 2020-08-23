@@ -51,9 +51,7 @@ class AuthenticatedUser(private val userId: String, private val roles: List<Simp
      * @return Boolean
      */
     fun hasRightsOrIsAdmin(userIdToCheck: UUID): Boolean {
-        return this.userId  == userIdToCheck.toString() || this.authorities.all {
-            it!!.authority == "ADMIN"
-        }
+        return this.userId  == userIdToCheck.toString() || this.authorities.contains(SimpleGrantedAuthority("ADMIN"))
     }
 
     /**
@@ -61,9 +59,7 @@ class AuthenticatedUser(private val userId: String, private val roles: List<Simp
      * @return Boolean
      */
     fun hasAdminRights(): Boolean {
-        return this.authorities.all {
-            it!!.authority == "ADMIN"
-        }
+        return this.authorities.contains(SimpleGrantedAuthority("ADMIN"))
     }
 
 }

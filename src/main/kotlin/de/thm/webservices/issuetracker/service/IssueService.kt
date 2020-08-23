@@ -84,8 +84,11 @@ class IssueService(
         return securityContextRepository.getAuthenticatedUser()
                 .zipWith(issueRepository.findById(issueId).switchIfEmpty(Mono.error(NotFoundException())))
                 .filter { tuple2: Tuple2<AuthenticatedUser, IssueModel> ->
-                    tuple2.t1.authorities.contains(SimpleGrantedAuthority("ADMIN"))
-                            || tuple2.t2.ownerId.toString() == tuple2.t1.name
+                    tuple2.t1.hasRightsOrIsAdmin(tuple2.t2.ownerId)
+
+                    // von Tom
+                    //tuple2.t1.authorities.contains(SimpleGrantedAuthority("ADMIN"))
+                    //        || tuple2.t2.ownerId.toString() == tuple2.t1.name
                 }
                 .switchIfEmpty(Mono.error(ForbiddenException("You are not the owner of the issue")))
                 .flatMap {
