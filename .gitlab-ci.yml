@@ -1,12 +1,20 @@
 stages:
   - build
+  - test
+
+test-backend: 
+  tags: 
+    - java
+  stage: test
+  script:
+    - ./gradlew test 
   
 build-backend: 
   tags: 
-    - gradle
+    - java
   stage: build
   script:
-    - gradle clean install 
+    - ./gradlew clean install 
   artifacts:
     paths: 
       - backend/target/**
