@@ -1,16 +1,25 @@
 stages:
-  - build
   - test
+  - build
+
+
+test-backend:
+  tags: 
+    - java
+  stage: test
+  script:
+    - ./gradlew test -info
   
 build-backend: 
   tags: 
     - java
   stage: build
   script:
-    - gradle clean install 
+    - ./gradlew clean
+    - ./gradlew build
   artifacts:
     paths: 
-      - backend/target/**
+      - backend/build/**
     when: always
     expire_in: 2 hours
       
