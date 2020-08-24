@@ -11,7 +11,7 @@ Mit unserer Implemtierung können Aufgaben:
 5. Benutzer verlinkt werden 
 
 Es ist eine kleine sehr einfach gehaltene Version eines [Gitlab-Issue-Verwaltung](https://docs.gitlab.com/ee/user/project/issue_board.html)/[Trello-Boards](https://trello.com/de), was lediglich minimale Funktionalitäten bereit stellt.
-- [aktuelle Feautes](2.1-Feature)
+- [aktuelle Feautes](./../../wikis/2.1-Feature)
 
 
 ## Wiki
@@ -28,10 +28,15 @@ Es ist eine kleine sehr einfach gehaltene Version eines [Gitlab-Issue-Verwaltung
 7. [On Boarding](./../../wikis/6-On-Boarding)
 
 
-
-
-
 ## Run App
+
+### Dependency 
+- Docker & Docker Compose
+- Gradle
+- Docker Projekt ->
+
+
+
 Wenn *gradle* global installiert ist:
 ```
 $> gradle bootRun
@@ -41,4 +46,6 @@ Alternativ kann das tool im Projekt benutzt werden:
 ```
 $> ./gradlew bootRun
 ```
+
+
 
