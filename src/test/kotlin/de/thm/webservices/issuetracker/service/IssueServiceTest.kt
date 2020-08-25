@@ -33,7 +33,6 @@ class IssueServiceTest(
         @Mock val securityContextRepository: SecurityContextRepository
 
 ) {
-
     companion object {
         const val otherUserId: String = "33333333-1111-1111-1111-111111111111"
         const val testTitle = "test Title"
@@ -45,30 +44,18 @@ class IssueServiceTest(
         val testIssueUUID = UUID.randomUUID()!!
         val testOwnerUUID = UUID.randomUUID()!!
         val testUserUUID = UUID.randomUUID()!!
-
-
     }
 
-    private val issueService = IssueService(issueRepository,commentRepository,
-            issueTemplate,
-            taggingService,
-            securityContextRepository
+    private val issueService = IssueService(issueRepository, commentRepository, issueTemplate,
+            taggingService, securityContextRepository
     )
 
-    val authUser = AuthenticatedUser(
-            testUserUUID.toString(),
-            listOf()
-    )
+    val authUser = AuthenticatedUser(testUserUUID.toString(), listOf())
+    val otherAuthUser = AuthenticatedUser(otherUserId, listOf())
 
-    val otherAuthUser = AuthenticatedUser(
-            otherUserId,
-            listOf()
-    )
     val expectedIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
     val newIssueModel = IssueModel(null, testTitle, testUserUUID, testDeadline)
     val returnedIssue = IssueModel(UUID.randomUUID(), testTitle, testUserUUID, testDeadline)
-
-
 
 
     @Test
@@ -220,7 +207,7 @@ class IssueServiceTest(
     @Test
     fun testChangeAttrFromIssue() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
-        var myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
+        val myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
 
         val changedIssue = IssueModel(toSaveIssue.id, newTitle, UUID.fromString(otherUserId), toSaveIssue.deadline)
 
@@ -239,7 +226,7 @@ class IssueServiceTest(
     @Test
     fun testChangeAttrFromIssueThrowsNotFoundException() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
-        var myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
+        val myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
 
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.just(authUser))
         given(issueRepository.findById(toSaveIssue.id!!)).willReturn(Mono.empty())
@@ -254,7 +241,7 @@ class IssueServiceTest(
     @Test
     fun testChangeAttrFromIssueThrowsForbiddenException() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
-        var myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
+        val myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
 
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.empty())
 
@@ -268,9 +255,7 @@ class IssueServiceTest(
     @Test
     fun testChangeAttrFromIssueThrowsNotModifiedException() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
-        var myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
-
-        val changedIssue = IssueModel(toSaveIssue.id, newTitle, UUID.fromString(otherUserId), toSaveIssue.deadline)
+        val myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
 
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.just(authUser))
         given(issueRepository.findById(toSaveIssue.id!!)).willReturn(Mono.just(toSaveIssue))
@@ -293,7 +278,7 @@ class IssueServiceTest(
         val issue2 = IssueModel(UUID.randomUUID(), title2, testOwnerUUID, testDeadline)
         val issue3 = IssueModel(UUID.randomUUID(), title3, testOwnerUUID, testDeadline)
 
-        var myIssues = mutableListOf(issue1, issue2, issue3)
+        val myIssues = mutableListOf(issue1, issue2, issue3)
 
         given(issueRepository.findByOwnerId(testOwnerUUID)).willReturn(Flux.fromIterable(myIssues))
 
