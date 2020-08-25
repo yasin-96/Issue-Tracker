@@ -156,9 +156,8 @@ class IssueService(
      * @return Flux<IssueModel>
      */
     fun getAllIssuesFromOwnerById(ownerId: UUID): Flux<IssueModel> {
-        //TODO user prüfen??
         return issueRepository.findByOwnerId(ownerId)
-                .switchIfEmpty(Mono.error(NotFoundException()))
+                .switchIfEmpty(Mono.error(NotFoundException("Owner Id not found!")))
     }
 
     /**
@@ -168,6 +167,7 @@ class IssueService(
      */
     fun getAllIssuesFromOwnerByIdForStats(ownerId: UUID): Flux<IssueModel> {
         //TODO user prüfen??
+        // brauchen wir das?
         return issueRepository.findByOwnerId(ownerId)
     }
 
