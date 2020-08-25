@@ -1,4 +1,8 @@
-CREATE TABLE IF NOT EXISTS  issues
+DROP TABLE IF EXISTS issues;
+DROP TABLE IF EXISTS comments;
+DROP TABLE IF EXISTS users;
+
+CREATE TABLE issues
 (
     id UUID NOT NULL DEFAULT random_uuid(),
     title varchar(255) NOT NULL,
@@ -10,7 +14,7 @@ CREATE TABLE IF NOT EXISTS  issues
      ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS comments (
+CREATE TABLE comments (
     id UUID NOT NULL DEFAULT random_uuid (),
     content VARCHAR(255) NOT NULL,
     user_id UUID NOT NULL,
@@ -23,7 +27,7 @@ CREATE TABLE IF NOT EXISTS comments (
       ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS  users (
+CREATE TABLE users (
     id UUID NOT NULL DEFAULT random_uuid (),
     username VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
