@@ -17,7 +17,7 @@ Es ist eine kleine sehr einfach gehaltene Version eines [Gitlab-Issue-Verwaltung
 ## Wiki
 0. [Wiki Pages](./../../wikis/pages)
 1. [Architektur](./../../wikis/2-Architektur)
-2. [Feautes](./../../wikis/2.1-Feature)
+2. [Features](./../../wikis/2.1-Feature)
 3. [Models](./../../wikis/2.2-Models)
 4. API
    - [REST](./../../wikis/3-API/1-REST)
