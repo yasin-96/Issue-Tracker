@@ -56,7 +56,6 @@ class IssueService(
                 .switchIfEmpty(Mono.error(ForbiddenException()))
                 .flatMap {
                     issueRepository.save(newIssueModel)
-                            .switchIfEmpty(Mono.error(NoContentException("Could not create new issue")))
                             .zipWith(taggingService.tagging(newIssueModel.title))
                 }
                 .doOnSuccess { tuple ->

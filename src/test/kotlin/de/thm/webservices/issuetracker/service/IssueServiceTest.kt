@@ -1,7 +1,6 @@
 package de.thm.webservices.issuetracker.service
 
 import de.thm.webservices.issuetracker.exception.ForbiddenException
-import de.thm.webservices.issuetracker.exception.NoContentException
 import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.exception.NotModifiedException
 import de.thm.webservices.issuetracker.model.CommentModel
@@ -36,16 +35,25 @@ class IssueServiceTest(
 ) {
 
     companion object {
-        const val testUserId: String = "22222222-1111-1111-1111-111111111111"
         const val otherUserId: String = "33333333-1111-1111-1111-111111111111"
         const val testTitle = "test Title"
         const val testDeadline = "2020-12-01"
         const val newTitle = "My new title"
+        const val IssueModelTitle = "title"
+        const val IssueModelOwnerId = "ownerId"
 
         val testIssueUUID = UUID.randomUUID()!!
         val testOwnerUUID = UUID.randomUUID()!!
         val testUserUUID = UUID.randomUUID()!!
+
+
     }
+
+    private val issueService = IssueService(issueRepository,commentRepository,
+            issueTemplate,
+            taggingService,
+            securityContextRepository
+    )
 
     val authUser = AuthenticatedUser(
             testUserUUID.toString(),
@@ -60,13 +68,7 @@ class IssueServiceTest(
     val newIssueModel = IssueModel(null, testTitle, testUserUUID, testDeadline)
     val returnedIssue = IssueModel(UUID.randomUUID(), testTitle, testUserUUID, testDeadline)
 
-    val issueService = IssueService(
-            issueRepository,
-            commentRepository,
-            issueTemplate,
-            taggingService,
-            securityContextRepository
-    )
+
 
 
     @Test
@@ -116,19 +118,6 @@ class IssueServiceTest(
         issueService.addNewIssue(newIssueModel)
                 .onErrorResume { exception ->
                     assert(exception is ForbiddenException)
-                    Mono.empty()
-                }.subscribe()
-    }
-
-    //@Test
-    fun testAddNewIssueNoContentException() {
-        given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.just(authUser))
-        given(issueRepository.save(newIssueModel)).willReturn(Mono.empty())
-
-        // TODO does not work as wished
-        issueService.addNewIssue(newIssueModel)
-                .onErrorResume { exception ->
-                    assert(exception is NoContentException)
                     Mono.empty()
                 }.subscribe()
     }
@@ -231,7 +220,7 @@ class IssueServiceTest(
     @Test
     fun testChangeAttrFromIssue() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
-        var myChanges = mutableMapOf("title" to newTitle, "ownerId" to otherUserId)
+        var myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
 
         val changedIssue = IssueModel(toSaveIssue.id, newTitle, UUID.fromString(otherUserId), toSaveIssue.deadline)
 
@@ -250,7 +239,7 @@ class IssueServiceTest(
     @Test
     fun testChangeAttrFromIssueThrowsNotFoundException() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
-        var myChanges = mutableMapOf("title" to newTitle, "ownerId" to otherUserId)
+        var myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
 
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.just(authUser))
         given(issueRepository.findById(toSaveIssue.id!!)).willReturn(Mono.empty())
@@ -265,7 +254,7 @@ class IssueServiceTest(
     @Test
     fun testChangeAttrFromIssueThrowsForbiddenException() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
-        var myChanges = mutableMapOf("title" to newTitle, "ownerId" to otherUserId)
+        var myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
 
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.empty())
 
@@ -279,7 +268,7 @@ class IssueServiceTest(
     @Test
     fun testChangeAttrFromIssueThrowsNotModifiedException() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
-        var myChanges = mutableMapOf("title" to newTitle, "ownerId" to otherUserId)
+        var myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
 
         val changedIssue = IssueModel(toSaveIssue.id, newTitle, UUID.fromString(otherUserId), toSaveIssue.deadline)
 
