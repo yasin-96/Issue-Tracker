@@ -6,6 +6,7 @@ import de.thm.webservices.issuetracker.service.CommentService
 import de.thm.webservices.issuetracker.service.IssueService
 import de.thm.webservices.issuetracker.service.TaggingService
 import de.thm.webservices.issuetracker.service.UserService
+import de.thm.webservices.issuetracker.service.StatisticService
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -16,9 +17,9 @@ import java.util.*
 @RestController
 class StatisticsController(
         private val commentService: CommentService,
-        private val issueService: IssueService,
         private val userService: UserService,
-        var taggingService: TaggingService
+        var taggingService: TaggingService,
+        private val statisticService: StatisticService
 ) {
 
     /**
@@ -29,21 +30,7 @@ class StatisticsController(
     @GetMapping("/_stats")
     fun getStatsFromIds(@RequestParam userIds: List<UUID>): Flux<Optional<StatsModel>> {
         return Flux.fromIterable(userIds)
-                .flatMap { userId ->
-                    Flux.zip(
-                            issueService.getAllIssuesFromOwnerByIdForStats(userId)
-                                    .collectList(),
-                            commentService.getAllCommentsByUserIdForStats(userId)
-                                    .collectList()
-                    )
-                            .map {
-                                Optional.of(StatsModel(
-                                        userId,
-                                        it.t1.count(),
-                                        it.t2.count()
-                                ))
-                            }
-                }
+                .flatMap { userId -> statisticService.getStatsFromId(userId) }
     }
 
     /**

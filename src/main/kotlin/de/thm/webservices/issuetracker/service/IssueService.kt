@@ -37,7 +37,6 @@ class IssueService(
      * @return Mono<IssueModel>
      */
     fun getIssueById(idFromIssue: UUID): Mono<IssueModel> {
-        //TODO user prüfen??
         return issueRepository.findById(idFromIssue)
                 .switchIfEmpty(Mono.error(NotFoundException("Id not found")))
     }
@@ -50,13 +49,11 @@ class IssueService(
      * @return Mono<UUID>
      */
     fun addNewIssue(newIssueModel: IssueModel): Mono<UUID> {
-
         return securityContextRepository.getAuthenticatedUser()
                 .filter { it.hasRightsOrIsAdmin(newIssueModel.ownerId) }
                 .switchIfEmpty(Mono.error(ForbiddenException()))
                 .flatMap {
                     issueRepository.save(newIssueModel)
-                            .switchIfEmpty(Mono.error(NoContentException("Could not create new issue")))
                             .zipWith(taggingService.tagging(newIssueModel.title))
                 }
                 .doOnSuccess { tuple ->
@@ -85,10 +82,6 @@ class IssueService(
                 .zipWith(issueRepository.findById(issueId).switchIfEmpty(Mono.error(NotFoundException())))
                 .filter { tuple2: Tuple2<AuthenticatedUser, IssueModel> ->
                     tuple2.t1.hasRightsOrIsAdmin(tuple2.t2.ownerId)
-
-                    // von Tom
-                    //tuple2.t1.authorities.contains(SimpleGrantedAuthority("ADMIN"))
-                    //        || tuple2.t2.ownerId.toString() == tuple2.t1.name
                 }
                 .switchIfEmpty(Mono.error(ForbiddenException("You are not the owner of the issue")))
                 .flatMap {
@@ -126,7 +119,6 @@ class IssueService(
      * @return Mono<IssueModel>
      */
     fun changeAttrFromIssue(idOfIssue: UUID, issueAttr: Map<String, String?>?): Mono<IssueModel> {
-
         return securityContextRepository.getAuthenticatedUser()
                 .flatMap { authUser ->
                     getIssueById(idOfIssue)
@@ -156,19 +148,8 @@ class IssueService(
      * @return Flux<IssueModel>
      */
     fun getAllIssuesFromOwnerById(ownerId: UUID): Flux<IssueModel> {
-        //TODO user prüfen??
         return issueRepository.findByOwnerId(ownerId)
                 .switchIfEmpty(Mono.error(NotFoundException()))
-    }
-
-    /**
-     * Returns all issues based  on user id
-     * @param ownerId UUID Id of owner
-     * @return Flux<IssueModel>
-     */
-    fun getAllIssuesFromOwnerByIdForStats(ownerId: UUID): Flux<IssueModel> {
-        //TODO user prüfen??
-        return issueRepository.findByOwnerId(ownerId)
     }
 
 
@@ -178,7 +159,6 @@ class IssueService(
      * @return Mono<IssueViewModel>
      */
     fun getIssueWithAllComments(issueId: UUID): Mono<IssueViewModel> {
-        //TODO user prüfen??
         return Mono.zip(issueRepository.findById(issueId), commentRepository.findAllByIssueId(issueId).collectList())
                 .map { IssueViewModel(it.t1, it.t2) }
     }

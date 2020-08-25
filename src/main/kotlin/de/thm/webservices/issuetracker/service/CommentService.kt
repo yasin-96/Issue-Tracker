@@ -33,7 +33,6 @@ class CommentService(
      * @return Flux<CommentModel>
      */
     fun getAllCommentByIssueId(issueId: UUID): Flux<CommentModel> {
-        //TODO user prüfen??
         return commentRepository.findAllByIssueId(issueId)
                 .switchIfEmpty(Mono.error(NotFoundException("Id in comment for issue was not correct")))
     }
@@ -108,13 +107,4 @@ class CommentService(
                 }
     }
 
-    /**
-     * Returns all comments written from user, searched by id
-     * @param userId UUID Id from user
-     * @return Flux<CommentModel>
-     */
-    fun getAllCommentsByUserIdForStats(userId: UUID): Flux<CommentModel> {
-        //TODO user prüfen??
-        return commentRepository.findAllByUserId(userId)
-    }
 }
