@@ -1,20 +1,21 @@
 package de.thm.webservices.issuetracker.config
 
 import org.flywaydb.core.Flyway
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.env.Environment
 
 @Configuration
-class FlywayConfig(private val env: Environment) {
+class FlywayConfig(
+        @Value("spring.datasource.url") private val url: String,
+        @Value("spring.datasource.username") private val user: String,
+        @Value("spring.datasource.password=") private val password: String
+) {
     @Bean(initMethod = "migrate")
     fun flyway(): Flyway {
         return Flyway(Flyway.configure()
                 .baselineOnMigrate(true)
-                .dataSource(
-                        env.getRequiredProperty("spring.flyway.url"),
-                        env.getRequiredProperty("spring.flyway.user"),
-                        env.getRequiredProperty("spring.flyway.password"))
+                .dataSource( url, user, password)
         )
     }
 }

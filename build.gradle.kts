@@ -20,10 +20,10 @@ repositories {
 }
 
 dependencies {
+	implementation("org.flywaydb:flyway-core")
 	implementation("com.google.code.gson:gson:2.8.0")
 	implementation("org.apache.commons:commons-lang3:3.4")
 	implementation("cglib:cglib-nodep:3.2.0")
-	implementation("org.flywaydb:flyway-core")
 	implementation("org.postgresql:postgresql")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation ("org.springframework.boot:spring-boot-starter-amqp")

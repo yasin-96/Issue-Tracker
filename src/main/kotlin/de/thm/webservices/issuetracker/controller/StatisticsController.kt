@@ -18,7 +18,7 @@ import java.util.*
 class StatisticsController(
         private val commentService: CommentService,
         private val userService: UserService,
-        var taggingService: TaggingService,
+        private val taggingService: TaggingService,
         private val statisticService: StatisticService
 ) {
 
