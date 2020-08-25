@@ -23,8 +23,9 @@ class StatisticsController(
 ) {
 
     /**
-     *
-     * @param userIds List<UUID>
+     * Returns a statistic which user with the
+     * corresponding ID has created how many issues and comments
+     * @param userIds List<UUID> Id's from many users
      * @return Flux<Optional<StatsModel>>
      */
     @GetMapping("/_stats")
@@ -34,8 +35,8 @@ class StatisticsController(
     }
 
     /**
-     *
-     * @param issueId UUID
+     * Counts all users within an issue that were linked in comments
+     * @param issueId UUID Id of issue
      * @return Mono<Optional<TagStatsModel>>
      */
     @GetMapping("/_stat/tags")
@@ -47,7 +48,7 @@ class StatisticsController(
     }
 
     /**
-     *
+     * Counts all users registered in the system
      * @return Mono<Map<String, Int>>
      */
     @GetMapping("/_stats/registered")
