@@ -57,7 +57,7 @@ class UserService(
 
 
     /**
-     * TODO muss raus
+     *
      * @return Flux<UserModel>
      */
     fun getNumberOfRegistertedUsers(): Mono<Int> {

@@ -62,10 +62,10 @@ class UserController(
     /**
      * Fetches all written comments of a user according to the id
      *
-     * @param userId UUID? Id of User
+     * @param userId UUID Id of User
      * @return Flux<CommentModel>
      */
-    @GetMapping("/user/comments/{userId}")
+    @GetMapping("/user/comment/{userId}")
     fun getAllCommentsOfAnUser(@PathVariable userId: UUID): Flux<CommentModel> {
             return commentService.getAllCommentsByUserId(userId)
     }

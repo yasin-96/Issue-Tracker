@@ -21,7 +21,7 @@ class CommentController(
      * @param id UUID Id of issue
      * @return Flux<CommentModel>
      */
-    @GetMapping("/comments/issue/{id}")
+    @GetMapping("/comment/issue/{id}")
     fun getAllCommentsByIssueId(@PathVariable id: UUID): Flux<CommentModel> {
             return commentService.getAllCommentByIssueId(id)
     }
