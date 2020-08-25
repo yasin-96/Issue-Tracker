@@ -149,7 +149,7 @@ class IssueService(
      */
     fun getAllIssuesFromOwnerById(ownerId: UUID): Flux<IssueModel> {
         return issueRepository.findByOwnerId(ownerId)
-                .switchIfEmpty(Mono.error(NotFoundException()))
+                .switchIfEmpty(Mono.error(NotFoundException("Owner Id not found!")))
     }
 
 
