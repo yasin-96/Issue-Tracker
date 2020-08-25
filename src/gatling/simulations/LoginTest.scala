@@ -1,25 +1,23 @@
-package de.thm.webservices.issuetracker.gatling
 
-import scala.concurrent.duration
-import io.gatling.core.Predef
-import io.gatling.http.Predef
-import io.gatling.jdbc.Predef
+import scala.concurrent.duration._
+
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import io.gatling.jdbc.Predef._
 
 class LoginTest extends Simulation {
 
   val sessionHeaders = Map("Authorization" -> "Bearer ${authToken}",
     "Content-Type" -> "application/json")
 
-  val httpProtocol = http
-    .baseURL("http://xx.xx.xx.xx:3000/%22")
+  val httpProtocol = http.baseUrl("http://localhost:8080/")
 
   val scn = scenario("login_test")
     // LogIn
     .exec(http("login")
-      .post("/api/login")
-      .formParam("organization_id", "4666")
-      .formParam("email", "jdoe@example.com")
-      .formParam("password", "put_password_here")
+      .post("/auth/login")
+      .formParam("username", "alex")
+      .formParam("password", "alex")
       .check(jsonPath("$..token").exists.saveAs("authToken"))
     )
     .exec(http("get_alerts")
