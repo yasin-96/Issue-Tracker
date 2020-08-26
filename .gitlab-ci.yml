@@ -7,7 +7,9 @@ test-backend:
     - gradle
   stage: test
   script:
-    - git clone https://git.thm.de/webservices-2020/aws-docker-orchestration ado 
+    - git clone https://$ISSUE_REPO_USERNAME:$	
+ISSUE_REPO_TOKEN
+@git.thm.de/webservices-2020/aws-docker-orchestration ado 
     - cd ado
     - ./docker-compose build
     - ./docker-compose up &
