@@ -5,6 +5,7 @@ import de.thm.webservices.issuetracker.exception.NotFoundException
 import de.thm.webservices.issuetracker.exception.NotModifiedException
 import de.thm.webservices.issuetracker.model.CommentModel
 import de.thm.webservices.issuetracker.model.IssueModel
+import de.thm.webservices.issuetracker.model.UserModel
 import de.thm.webservices.issuetracker.model.event.CreateNewIssue
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.repository.IssueRepository
@@ -57,6 +58,8 @@ class IssueServiceTest(
     val newIssueModel = IssueModel(null, testTitle, testUserUUID, testDeadline)
     val returnedIssue = IssueModel(UUID.randomUUID(), testTitle, testUserUUID, testDeadline)
 
+    val testUserModel = UserModel(UUID.randomUUID(), "username", "password", "admin")
+
 
     @Test
     fun testGetIssueById() {
@@ -84,10 +87,9 @@ class IssueServiceTest(
 
     @Test
     fun testAddNewIssue() {
-
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.just(authUser))
         given(issueRepository.save(newIssueModel)).willReturn(Mono.just(returnedIssue))
-        //given(taggingService.tagging(newIssueModel.title)).willReturn(Mono.just(mutableSetOf(returnedIssue.id!!)))
+        given(taggingService.tagging(newIssueModel.title)).willReturn(Mono.just(listOf(testUserModel)))
 
         Mockito.doNothing().`when`(issueTemplate).convertAndSend("amq.topic", returnedIssue.id.toString() + ".news",
                 CreateNewIssue(returnedIssue.id!!))
