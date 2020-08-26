@@ -18,7 +18,7 @@ build-backend:
     - git clone https://git.thm.de/webservices-2020/aws-docker-orchestration ado
     - cd ado
     - ./docker-compose build
-    - ./docker-compose up
+    - ./docker-compose up &
     - cd ..
     - ./gradlew clean
     - ./gradlew build
