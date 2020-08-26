@@ -28,7 +28,26 @@ Es ist eine kleine sehr einfach gehaltene Version eines [Gitlab-Issue-Verwaltung
 7. [On Boarding](./../../wikis/6-On-Boarding)
 
 
-## Run App
+## Start
+
+### Abhängigkeit
+Wir benötigen für den Start ein weiteres Repo, das bestimmte Docker-Container bereitstellt, die wir im Backend nutzen.
+- Alle Infos dazu [hier]()
+
+### Docker-Container
+Um die Docker-Container zu starten führen wir folgende Befehle aus:
+
+```
+git clone https://git.thm.de/webservices-2020/aws-docker-orchestration
+cd aws-docker-orchestration
+docker-compose build
+docker-compose up & 
+```
+
+### Backend
+Wenn die Docker-Container laufen, navigieren wir wieder zurück ins Backend und starten es.
+
+
 Wenn *gradle* global installiert ist:
 ```
 $> gradle bootRun
@@ -37,5 +56,20 @@ $> gradle bootRun
 Alternativ kann das tool im Projekt benutzt werden:
 ```
 $> ./gradlew bootRun
+```
+
+### Test
+Für die Test müssen auch die Docker-Container laufen!
+
+#### Run
+
+Wenn *gradle* global installiert ist:
+```
+$> gradle test
+```
+
+Alternativ kann das tool im Projekt benutzt werden:
+```
+$> ./gradlew test
 ```
 
