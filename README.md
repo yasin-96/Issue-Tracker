@@ -72,7 +72,7 @@ $> ./gradlew bootRun
 ### Test
 Für die Test müssen auch die Docker-Container laufen!
 
-#### Run
+#### Unit
 
 Wenn *gradle* global installiert ist:
 ```
@@ -84,3 +84,6 @@ Alternativ kann das tool im Projekt benutzt werden:
 $> ./gradlew test
 ```
 
+#### Stress-Test
+Für einen Stress-Test haben wir ein seperates Repo angelegt:
+- [Gatling : Stress-Test](https://git.thm.de/issuetracker/stress-test-gatling)
