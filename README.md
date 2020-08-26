@@ -86,4 +86,4 @@ $> ./gradlew test
 
 #### Stress-Test
 Für einen Stress-Test haben wir ein seperates Repo angelegt:
-- [Gatling : Stress-Test](https://git.thm.de/issuetracker/stress-test-gatling)
+- [Gatling : Stress-Test](https://git.thm.de/issuetracker/gatling-test)
