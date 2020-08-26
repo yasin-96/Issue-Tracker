@@ -1,16 +1,30 @@
 stages:
-  - build
   - test
+  - build
+
+
+test-backend:
+  tags: 
+    - gradle
+  stage: test
+  script:
+    - ./gradlew test -info
   
 build-backend: 
   tags: 
-    - java
+    - gradle
   stage: build
   script:
-    - gradle clean install 
+    - git clone https://git.thm.de/webservices-2020/aws-docker-orchestration ado
+    - cd ado
+    - ./docker-compose build
+    - ./docker-compose up &
+    - cd ..
+    - ./gradlew clean
+    - ./gradlew build
   artifacts:
     paths: 
-      - backend/target/**
+      - backend/build/**
     when: always
     expire_in: 2 hours
       

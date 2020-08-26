@@ -45,7 +45,7 @@ class UserController(
     fun post(@RequestBody userModel: UserModel): Mono<UserModel> {
         return Mono.zip(checkNewUserModel(userModel), userService.post(userModel))
                 .filter { it.t1 }
-                .switchIfEmpty(Mono.error(BadRequestException()))
+                .switchIfEmpty(Mono.error(BadRequestException("The transferred data are not valid")))
                 .map { it.t2 }
     }
 
@@ -62,10 +62,10 @@ class UserController(
     /**
      * Fetches all written comments of a user according to the id
      *
-     * @param userId UUID? Id of User
+     * @param userId UUID Id of User
      * @return Flux<CommentModel>
      */
-    @GetMapping("/user/comments/{userId}")
+    @GetMapping("/user/comment/{userId}")
     fun getAllCommentsOfAnUser(@PathVariable userId: UUID): Flux<CommentModel> {
             return commentService.getAllCommentsByUserId(userId)
     }

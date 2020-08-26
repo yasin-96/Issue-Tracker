@@ -6,11 +6,14 @@ import de.thm.webservices.issuetracker.model.IssueViewModel
 import de.thm.webservices.issuetracker.model.event.CreateNewIssue
 import de.thm.webservices.issuetracker.repository.CommentRepository
 import de.thm.webservices.issuetracker.repository.IssueRepository
+import de.thm.webservices.issuetracker.security.AuthenticatedUser
 import de.thm.webservices.issuetracker.security.SecurityContextRepository
 import org.springframework.amqp.rabbit.core.RabbitTemplate
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
+import reactor.util.function.Tuple2
 import java.util.*
 
 
@@ -39,15 +42,6 @@ class IssueService(
     }
 
     /**
-     * TODO raus nehmen
-     * @return Flux<IssueModel>
-     */
-    fun getAllIssues(): Flux<IssueModel> {
-        return issueRepository.findAll()
-    }
-
-
-    /**
      * Here, after the issue has been reviewed again,
      * the data is stored in the database.
      *
@@ -55,13 +49,11 @@ class IssueService(
      * @return Mono<UUID>
      */
     fun addNewIssue(newIssueModel: IssueModel): Mono<UUID> {
-
         return securityContextRepository.getAuthenticatedUser()
                 .filter { it.hasRightsOrIsAdmin(newIssueModel.ownerId) }
                 .switchIfEmpty(Mono.error(ForbiddenException()))
                 .flatMap {
                     issueRepository.save(newIssueModel)
-                            .switchIfEmpty(Mono.error(NoContentException("Could not create new issue")))
                             .zipWith(taggingService.tagging(newIssueModel.title))
                 }
                 .doOnSuccess { tuple ->
@@ -87,10 +79,9 @@ class IssueService(
      */
     fun deleteIssue(issueId: UUID): Mono<Void> {
         return securityContextRepository.getAuthenticatedUser()
-                .flatMap { authUser ->
-                    getIssueById(issueId)
-                        .switchIfEmpty(Mono.error(NotFoundException("")))
-                        .filter { authUser.hasRightsOrIsAdmin(it.ownerId)}
+                .zipWith(issueRepository.findById(issueId).switchIfEmpty(Mono.error(NotFoundException())))
+                .filter { tuple2: Tuple2<AuthenticatedUser, IssueModel> ->
+                    tuple2.t1.hasRightsOrIsAdmin(tuple2.t2.ownerId)
                 }
                 .switchIfEmpty(Mono.error(ForbiddenException("You are not the owner of the issue")))
                 .flatMap {
@@ -128,7 +119,6 @@ class IssueService(
      * @return Mono<IssueModel>
      */
     fun changeAttrFromIssue(idOfIssue: UUID, issueAttr: Map<String, String?>?): Mono<IssueModel> {
-
         return securityContextRepository.getAuthenticatedUser()
                 .flatMap { authUser ->
                     getIssueById(idOfIssue)
@@ -159,16 +149,7 @@ class IssueService(
      */
     fun getAllIssuesFromOwnerById(ownerId: UUID): Flux<IssueModel> {
         return issueRepository.findByOwnerId(ownerId)
-                .switchIfEmpty(Mono.error(NotFoundException()))
-    }
-
-    /**
-     * Returns all issues based  on user id
-     * @param ownerId UUID Id of owner
-     * @return Flux<IssueModel>
-     */
-    fun getAllIssuesFromOwnerByIdForStats(ownerId: UUID): Flux<IssueModel> {
-        return issueRepository.findByOwnerId(ownerId)
+                .switchIfEmpty(Mono.error(NotFoundException("Owner Id not found!")))
     }
 
 

@@ -57,15 +57,18 @@ class UserService(
 
 
     /**
-     * TODO muss raus
+     *
      * @return Flux<UserModel>
      */
-    fun getAll(): Flux<UserModel> {
+    fun getNumberOfRegistertedUsers(): Mono<Int> {
         return securityContextRepository.getAuthenticatedUser()
                 .filter { it.hasAdminRights() }
                 .switchIfEmpty(Mono.error(ForbiddenException()))
                 .flatMapMany {
                     userRepository.findAll()
+                }.collectList()
+                .map {
+                    it.count()
                 }
     }
 
@@ -112,7 +115,7 @@ class UserService(
                 .filter {
                     it.t1.hasRightsOrIsAdmin(userId)
                 }
-                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .switchIfEmpty(Mono.error(ForbiddenException("You do not have the authorization to read the user's data according to the id")))
                 .map { Optional.of(UserViewModel(it.t2, it.t3)) }
     }
 }

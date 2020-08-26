@@ -47,12 +47,12 @@ class CommentService(
         return securityContextRepository.getAuthenticatedUser()
                 //check rights
                 .filter { it.hasRightsOrIsAdmin(commentModel.userId) }
-                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .switchIfEmpty(Mono.error(ForbiddenException("You do not have permissions to create a comment")))
 
                 //check issue exist
                 .zipWith(issueRepository.existsById(commentModel.issueId))
                 .filter { it.t2 }
-                .switchIfEmpty(Mono.error(NotFoundException("Issue with this is doesn't exist")))
+                .switchIfEmpty(Mono.error(NotFoundException("Issue with this id doesn't exist")))
 
                 // save comment and send stomp message
                 .flatMap { commentRepository.save(commentModel) }
@@ -100,28 +100,11 @@ class CommentService(
     fun getAllCommentsByUserId(userId: UUID): Flux<CommentModel> {
         return securityContextRepository.getAuthenticatedUser()
                 .filter{it.hasRightsOrIsAdmin(userId)}
-                .switchIfEmpty(Mono.error(ForbiddenException()))
+                .switchIfEmpty(Mono.error(ForbiddenException("You do not have permissions to retrieve all comments from a user")))
                 .flatMapMany {
                     commentRepository.findAllByUserId(userId)
                             .switchIfEmpty(Mono.error(NotFoundException("User has no comments written")))
                 }
-    }
-
-    /**
-     * Returns all comments written from user, searched by id
-     * @param userId UUID
-     * @return Flux<CommentModel>
-     */
-    fun getAllCommentsByUserIdForStats(userId: UUID): Flux<CommentModel> {
-        return commentRepository.findAllByUserId(userId)
-    }
-
-    /**
-     * TODO muss raus
-     * @return Flux<CommentModel>
-     */
-    fun getAll(): Flux<CommentModel> {
-        return commentRepository.findAll()
     }
 
 }

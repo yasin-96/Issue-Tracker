@@ -24,6 +24,6 @@ class UserViewController(
     @GetMapping("/_view/userdata/{id}")
     fun getUserData(@PathVariable id: UUID): Mono<Optional<UserViewModel>> {
             return userService.getAllDataFromUserId(id)
-                    .switchIfEmpty(Mono.error(NotFoundException()))
+                    .switchIfEmpty(Mono.error(NotFoundException("The transferring id is invalid or was not found")))
     }
 }

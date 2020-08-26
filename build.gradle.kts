@@ -4,9 +4,11 @@ plugins {
 	id("org.springframework.boot") version "2.3.2.RELEASE"
 	id("io.spring.dependency-management") version "1.0.9.RELEASE"
 	id("org.flywaydb.flyway") version "6.5.5"
+	id("org.openapi.generator") version "4.3.1"
+	id("org.asciidoctor.jvm.convert") version "3.1.0"
+	id("com.github.lkishalmi.gatling") version "3.3.4"
 	kotlin("jvm") version "1.3.72"
 	kotlin("plugin.spring") version "1.3.72"
-
 }
 
 group = "de.thm.webservices"
@@ -18,6 +20,11 @@ repositories {
 }
 
 dependencies {
+	implementation("org.flywaydb:flyway-core")
+	implementation("com.google.code.gson:gson:2.8.0")
+	implementation("org.apache.commons:commons-lang3:3.4")
+	implementation("cglib:cglib-nodep:3.2.0")
+	implementation("org.postgresql:postgresql")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 	implementation ("org.springframework.boot:spring-boot-starter-amqp")
 	testImplementation ("org.springframework.amqp:spring-rabbit-test")
@@ -33,6 +40,7 @@ dependencies {
 	implementation("io.jsonwebtoken:jjwt:0.9.0")
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("io.r2dbc:r2dbc-h2")
+	runtimeOnly("io.r2dbc:r2dbc-postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test") {
 		exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
 	}

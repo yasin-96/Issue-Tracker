@@ -28,7 +28,7 @@ class IssueController(
     fun addNewIssue(@RequestBody newIssue: IssueModel): Mono<UUID> {
         return Mono.zip(checkNewIssueModel(newIssue), issueService.addNewIssue(newIssue))
                 .filter { it.t1 }
-                .switchIfEmpty(Mono.error(BadRequestException()))
+                .switchIfEmpty(Mono.error(BadRequestException("The transferred data are not valid")))
                 .map { it.t2 }
     }
 
@@ -95,15 +95,6 @@ class IssueController(
         return issueService.getAllIssuesFromOwnerById(id)
     }
 
-    /** TODO rauswerfen
-     * Only for Testing
-     * @return Flux<IssueModel>
-     */
-    @GetMapping("/issue/allIssues")
-    fun allIssues(): Flux<IssueModel> {
-        return issueService.getAllIssues()
-    }
-
 
     /**
      * Returns the issue with all comments
@@ -113,6 +104,6 @@ class IssueController(
     @GetMapping("/issue/comment/{id}")
     fun getIssueWithComments(@PathVariable id: UUID): Mono<IssueViewModel> {
         return issueService.getIssueWithAllComments(id)
-                .switchIfEmpty(Mono.error(BadRequestException("Missing ID")))
+                .switchIfEmpty(Mono.error(BadRequestException("An incorrect or invalid id was transmitted")))
     }
 }
