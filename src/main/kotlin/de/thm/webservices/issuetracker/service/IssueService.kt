@@ -154,7 +154,7 @@ class IssueService(
 
 
     /**
-     * Return a model with issue and his c
+     * Return a model with issue and his comments
      * @param issueId UUID
      * @return Mono<IssueViewModel>
      */
