@@ -87,7 +87,7 @@ class IssueServiceTest(
 
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.just(authUser))
         given(issueRepository.save(newIssueModel)).willReturn(Mono.just(returnedIssue))
-        given(taggingService.tagging(newIssueModel.title)).willReturn(Mono.just(mutableSetOf(returnedIssue.id!!)))
+        //given(taggingService.tagging(newIssueModel.title)).willReturn(Mono.just(mutableSetOf(returnedIssue.id!!)))
 
         Mockito.doNothing().`when`(issueTemplate).convertAndSend("amq.topic", returnedIssue.id.toString() + ".news",
                 CreateNewIssue(returnedIssue.id!!))
