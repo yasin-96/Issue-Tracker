@@ -62,7 +62,7 @@ class IssueServiceTest(
 
 
     @Test
-    fun testGetIssueById() {
+    fun testShouldGetIssueById() {
         given(issueRepository.findById(testIssueUUID)).willReturn(Mono.just(expectedIssue))
 
         val serviceReturned = issueService.getIssueById(testIssueUUID)
@@ -75,7 +75,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testGetIssueByIdNotFoundException() {
+    fun testShouldGetIssueByIdNotFoundException() {
         given(issueRepository.findById(testIssueUUID)).willReturn(Mono.empty())
 
         issueService.getIssueById(testIssueUUID)
@@ -86,7 +86,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testAddNewIssue() {
+    fun testShouldAddNewIssue() {
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.just(authUser))
         given(issueRepository.save(newIssueModel)).willReturn(Mono.just(returnedIssue))
         given(taggingService.tagging(newIssueModel.title)).willReturn(Mono.just(listOf(testUserModel)))
@@ -101,7 +101,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testAddNewIssueForbiddenException() {
+    fun testShouldAddNewIssueForbiddenException() {
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.empty())
 
         issueService.addNewIssue(newIssueModel)
@@ -112,7 +112,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testDeleteIssue() {
+    fun testShouldDeleteIssue() {
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.just(authUser))
         given(issueRepository.findById(testIssueUUID)).willReturn(Mono.just(expectedIssue))
 
@@ -125,7 +125,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testDeleteIssueThrowsNotFoundException() {
+    fun testShouldDeleteIssueThrowsNotFoundException() {
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.just(authUser))
         given(issueRepository.findById(testIssueUUID)).willReturn(Mono.empty())
 
@@ -137,7 +137,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testDeleteIssueThrowForbiddenException() {
+    fun testShouldDeleteIssueThrowForbiddenException() {
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.just(otherAuthUser))
         given(issueRepository.findById(testIssueUUID)).willReturn(Mono.just(expectedIssue))
         given(issueRepository.deleteById(testIssueUUID)).willReturn(Mono.empty())
@@ -151,7 +151,7 @@ class IssueServiceTest(
 
 
     @Test
-    fun testUpdateIssue() {
+    fun testShouldUpdateIssue() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
 
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.just(authUser))
@@ -165,7 +165,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testUpdateIssueThrowsForbiddenException() {
+    fun testShouldUpdateIssueThrowsForbiddenException() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
 
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.empty())
@@ -178,7 +178,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testUpdateIssueThrowsNotFoundException() {
+    fun testShouldUpdateIssueThrowsNotFoundException() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
 
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.just(authUser))
@@ -192,7 +192,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testUpdateIssueThrowsNotModifiedException() {
+    fun testShouldUpdateIssueThrowsNotModifiedException() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
 
         given(securityContextRepository.getAuthenticatedUser()).willReturn(Mono.just(authUser))
@@ -207,7 +207,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testChangeAttrFromIssue() {
+    fun testShouldChangeAttrFromIssue() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
         val myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
 
@@ -226,7 +226,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testChangeAttrFromIssueThrowsNotFoundException() {
+    fun testShouldChangeAttrFromIssueThrowsNotFoundException() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
         val myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
 
@@ -241,7 +241,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testChangeAttrFromIssueThrowsForbiddenException() {
+    fun testShouldChangeAttrFromIssueThrowsForbiddenException() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
         val myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
 
@@ -255,7 +255,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testChangeAttrFromIssueThrowsNotModifiedException() {
+    fun testShouldChangeAttrFromIssueThrowsNotModifiedException() {
         val toSaveIssue = IssueModel(testIssueUUID, testTitle, testUserUUID, testDeadline)
         val myChanges = mutableMapOf(IssueModelTitle to newTitle, IssueModelOwnerId to otherUserId)
 
@@ -271,7 +271,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testGetAllIssuesFromOwnerById() {
+    fun testShouldGetAllIssuesFromOwnerById() {
         val title1 = "title1"
         val title2 = "title2"
         val title3 = "title3"
@@ -298,7 +298,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testGetAllIssuesFromOwnerByIdThrowsNotFoundException() {
+    fun testShouldGetAllIssuesFromOwnerByIdThrowsNotFoundException() {
         given(issueRepository.findByOwnerId(testOwnerUUID)).willReturn(Flux.empty())
 
         issueService.getAllIssuesFromOwnerById(testOwnerUUID)
@@ -309,7 +309,7 @@ class IssueServiceTest(
     }
 
     @Test
-    fun testGetIssueWithAllComments() {
+    fun testShouldGetIssueWithAllComments() {
         val title1 = "title1"
         val issue1 = IssueModel(testIssueUUID, title1, testOwnerUUID, testDeadline)
 
