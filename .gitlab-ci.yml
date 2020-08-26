@@ -5,14 +5,14 @@ stages:
 
 test-backend:
   tags: 
-    - java
+    - gradle
   stage: test
   script:
     - ./gradlew test -info
   
 build-backend: 
   tags: 
-    - java
+    - gradle
   stage: build
   script:
     - git clone https://git.thm.de/webservices-2020/aws-docker-orchestration ado
