@@ -14,18 +14,29 @@ Es ist eine kleine sehr einfach gehaltene Version eines [Gitlab-Issue-Verwaltung
 - [aktuelle Feautes](./../../wikis/2.1-Feature)
 
 
-## Wiki
-0. [Wiki Pages](./../../wikis/pages)
+## Dokumentation
+0. [Abhängigkeiten](./../../wikis/1.1-Abhängigkeiten)
 1. [Architektur](./../../wikis/2-Architektur)
-2. [Features](./../../wikis/2.1-Feature)
+2. [Feautes](./../../wikis/2.1-Feature)
 3. [Models](./../../wikis/2.2-Models)
 4. API
-   - [REST](./../../wikis/3-API/1-REST)
-   - [VIEW](./../../wikis/3-API/2-VIEW)
-   - [Management](./../../wikis/3-API/3-Management)
+   - Rest
+     - [auth](./../../wikis/3-API/1-REST/1-auth)
+     - [user](./../../wikis/3-API/1-REST/2-user)
+     - [issue](./../../wikis/3-API/1-REST/3-issue)
+     - [comment](./../../wikis/3-API/1-REST/4-comment)
+     - [rest-collection](./../../wikis/3-API/1-REST/99-rest-api-collection)
+   - Management
+     - [actuator](./../../wikis/3-API/3-Management/actuator)
+     - [flyway](./../../wikis/3-API/3-Management/flyway)
+   - View
+     - [stats](./../../wikis/3-API/3-VIEW/stats)
+     - [user](./../../wikis/3-API/3-VIEW/user)
+     - [view](./../../wikis/3-API/3-VIEW/view)
 5. [Nachrichtenversand](./../../wikis/4-Nachrichtenversand)
 6. [Rechtesystem](./../../wikis/5-Rechtesystem)
 7. [On Boarding](./../../wikis/6-On-Boarding)
+8. [WIKI](./../../wikis/pages)
 
 
 ## Start
